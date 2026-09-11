@@ -67,11 +67,25 @@ export function renderHeader() {
           </div>
         </div>
 
-        <!-- User Mini Avatar -->
-        <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')">
-          <img src="${AppState.user.avatar_url}" alt="User avatar"
-               class="w-9 h-9 rounded-xl object-cover border border-slate-200 ring-2 ring-indigo-50 hover:ring-indigo-200 transition-all">
-        </div>
+        <!-- User Mini Avatar & Logout Action -->
+        ${AppState.user ? `
+          <div class="flex items-center gap-2">
+            <button onclick="UniPulse.handleLogout()"
+                    title="Log out of UniPulse"
+                    class="px-2.5 py-1.5 rounded-xl border border-rose-200/80 bg-rose-50/70 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs backdrop-blur-sm">
+              <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              <span class="hidden sm:inline">Logout</span>
+            </button>
+            <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')" title="View profile">
+              <img src="${AppState.user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="User avatar"
+                   class="w-9 h-9 rounded-xl object-cover border border-slate-200 ring-2 ring-indigo-50 hover:ring-indigo-200 transition-all">
+            </div>
+          </div>
+        ` : `
+          <button onclick="UniPulse.navigateTo('login')" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs">
+            Sign In
+          </button>
+        `}
       </div>
     </header>
   `;

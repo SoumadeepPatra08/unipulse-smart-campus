@@ -23,11 +23,12 @@ from backend.db import init_db, get_db_connection
 from backend.matching import compute_match_analysis, generate_embedding
 from backend.assistant import stream_assistant_chunks
 from backend.routes import (
-    handle_login, handle_search, handle_get_locations, handle_get_route,
-    handle_get_study_spaces, handle_reserve_study_space, handle_get_item_matches,
-    handle_claim_match, handle_assistant_message, handle_admin_kpis,
-    handle_admin_audit_queue, handle_admin_verify, handle_get_events,
-    handle_rsvp_event, handle_create_item, create_jwt, verify_jwt
+    handle_login, handle_register, handle_logout, handle_get_me, handle_search,
+    handle_get_locations, handle_get_route, handle_get_study_spaces,
+    handle_reserve_study_space, handle_get_item_matches, handle_claim_match,
+    handle_assistant_message, handle_admin_kpis, handle_admin_audit_queue,
+    handle_admin_verify, handle_get_events, handle_rsvp_event, handle_create_item,
+    create_jwt, verify_jwt
 )
 import seed
 
@@ -45,15 +46,76 @@ def run_all_tests():
     conn.close()
     print("  -> PASSED: Seeded demo users, locations, spaces, items, and events.")
 
-    # 2. Authentication & JWT
-    print("\n[2/8] Testing Authentication & JWT...")
-    login_res = handle_login({"email": "alex@campus.edu", "password": "alex123"})
+    # 2. Authentication, Bcrypt, JWT & HTTP-Only Cookie Session
+    print("\n[2/8] Testing Full Authentication Lifecycle (Register, Login, Bcrypt, Profile, Logout)...")
+    
+    # 2a. Registration validation & success
+    reg_invalid_email = handle_register({"name": "Test User", "email": "bademail", "password": "securepassword123"})
+    assert reg_invalid_email["error"] is not None and reg_invalid_email["error"]["code"] == 400
+    
+    reg_short_pass = handle_register({"name": "Test User", "email": "test@campus.edu", "password": "123"})
+    assert reg_short_pass["error"] is not None and reg_short_pass["error"]["code"] == 400
+
+    test_email = "maria.chen@campus.edu"
+    reg_res = handle_register({
+        "name": "Maria Chen",
+        "email": test_email,
+        "password": "Password123!",
+        "student_id": "CS-2028-9901",
+        "major": "Data Science"
+    })
+    assert reg_res["error"] is None, f"Registration failed: {reg_res['error']}"
+    assert reg_res["data"]["user"]["email"] == test_email
+    assert "password_hash" not in reg_res["data"]["user"], "Plaintext or hash should never be returned"
+    assert reg_res["data"]["token"] is not None
+    print("  -> PASSED: New user registered and password hashed with bcrypt.")
+
+    # 2b. Conflict rejection (409) for duplicate email
+    reg_dup = handle_register({
+        "name": "Maria Duplicate",
+        "email": test_email,
+        "password": "AnotherPassword123!"
+    })
+    assert reg_dup["error"] is not None and reg_dup["error"]["code"] == 409
+    print("  -> PASSED: Duplicate email registration rejected with 409 Conflict.")
+
+    # 2c. Invalid credentials rejection (401)
+    bad_pass_res = handle_login({"email": test_email, "password": "WrongPassword!"})
+    assert bad_pass_res["error"] is not None and bad_pass_res["error"]["code"] == 401
+    print("  -> PASSED: Invalid password rejected with 401 Unauthorized.")
+
+    # 2d. Valid login with bcrypt verification
+    login_res = handle_login({"email": test_email, "password": "Password123!"})
     assert login_res["error"] is None, f"Login failed: {login_res['error']}"
     token = login_res["data"]["token"]
+    assert token is not None
     payload = verify_jwt(token)
-    assert payload is not None and payload["email"] == "alex@campus.edu"
+    assert payload is not None and payload["email"] == test_email
+    print("  -> PASSED: Valid login verified against bcrypt hash and JWT issued.")
+
+    # 2e. Authenticated Profile via Bearer Header
     auth_headers = {"Authorization": f"Bearer {token}"}
-    print("  -> PASSED: JWT generated and validated successfully for student Alex Rivera.")
+    me_bearer = handle_get_me(auth_headers)
+    assert me_bearer["error"] is None
+    assert me_bearer["data"]["email"] == test_email
+    print("  -> PASSED: User profile retrieved via Bearer Authorization header.")
+
+    # 2f. Authenticated Profile via HTTP Cookie header
+    cookie_headers = {"Cookie": f"foo=bar; token={token}; session=active"}
+    me_cookie = handle_get_me(cookie_headers)
+    assert me_cookie["error"] is None
+    assert me_cookie["data"]["email"] == test_email
+    print("  -> PASSED: User profile retrieved via HTTP-only Cookie header.")
+
+    # 2g. Logout
+    logout_res = handle_logout()
+    assert logout_res["error"] is None
+    print("  -> PASSED: Logout endpoint returned successful response.")
+
+    # Demo student login for subsequent tests
+    demo_login = handle_login({"email": "alex@campus.edu", "password": "alex123"})
+    assert demo_login["error"] is None
+    auth_headers = {"Authorization": f"Bearer {demo_login['data']['token']}"}
 
     # 3. AI Matching Engine & 91% Calculation
     print("\n[3/8] Testing AI Matching Engine & Dynamic 91% Calculation...")

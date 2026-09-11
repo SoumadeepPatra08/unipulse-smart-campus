@@ -3,12 +3,20 @@
 // =========================================================================
 
 export const UniPulse = {
-  // Navigation Router
+  // Navigation Router & Route Guard
   navigateTo(viewName) {
+    if (!AppState.isAuthenticated && viewName !== 'login') {
+      viewName = 'login';
+    } else if (AppState.isAuthenticated && viewName === 'login') {
+      viewName = 'dashboard';
+    }
+
     AppState.activeView = viewName;
     window.location.hash = viewName;
     this.render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (viewName === 'login') return;
 
     // Fetch view specific fresh data
     if (viewName === 'dashboard') this.loadDashboard();
@@ -20,9 +28,270 @@ export const UniPulse = {
     if (viewName === 'campusMap') this.updateMapRoute();
   },
 
+  // -----------------------------------------------------------------------
+  // Authentication & Session Management
+  // -----------------------------------------------------------------------
+  switchAuthMode(mode) {
+    const signinForm = document.getElementById('signin-form');
+    const registerForm = document.getElementById('register-form');
+    const tabSignin = document.getElementById('auth-tab-signin');
+    const tabRegister = document.getElementById('auth-tab-register');
+    this.clearAuthAlert();
+    this.clearAuthErrors();
+
+    if (mode === 'register') {
+      AppState.authMode = 'register';
+      if (signinForm) signinForm.classList.add('hidden');
+      if (registerForm) registerForm.classList.remove('hidden');
+      if (tabSignin) {
+        tabSignin.className = 'flex-1 py-2 text-xs font-semibold text-slate-600 rounded-xl hover:text-slate-900 transition-all';
+      }
+      if (tabRegister) {
+        tabRegister.className = 'flex-1 py-2 text-xs font-bold rounded-xl transition-all shadow-xs bg-indigo-600 text-white';
+      }
+    } else {
+      AppState.authMode = 'signin';
+      if (registerForm) registerForm.classList.add('hidden');
+      if (signinForm) signinForm.classList.remove('hidden');
+      if (tabRegister) {
+        tabRegister.className = 'flex-1 py-2 text-xs font-semibold text-slate-600 rounded-xl hover:text-slate-900 transition-all';
+      }
+      if (tabSignin) {
+        tabSignin.className = 'flex-1 py-2 text-xs font-bold rounded-xl transition-all shadow-xs bg-indigo-600 text-white';
+      }
+    }
+  },
+
+  setAuthAlert(type, message) {
+    const alertEl = document.getElementById('auth-alert');
+    const msgEl = document.getElementById('auth-alert-msg');
+    const iconEl = document.getElementById('auth-alert-icon');
+    if (!alertEl || !msgEl) return;
+
+    alertEl.className = `mb-5 p-3.5 rounded-2xl text-xs font-medium flex items-start gap-2.5 transition-all ${
+      type === 'error'
+        ? 'bg-rose-50/90 text-rose-800 border border-rose-200'
+        : 'bg-emerald-50/90 text-emerald-800 border border-emerald-200'
+    }`;
+    if (iconEl) iconEl.innerText = type === 'error' ? '⚠️' : '✅';
+    msgEl.innerText = message;
+  },
+
+  clearAuthAlert() {
+    const alertEl = document.getElementById('auth-alert');
+    if (alertEl) alertEl.classList.add('hidden');
+  },
+
+  clearAuthErrors() {
+    const errorEls = document.querySelectorAll('[id$="-error"]');
+    errorEls.forEach(el => {
+      el.innerText = '';
+      el.classList.add('hidden');
+    });
+    const inputs = document.querySelectorAll('.glass-input');
+    inputs.forEach(inp => {
+      inp.classList.remove('border-rose-500', 'ring-1', 'ring-rose-400');
+    });
+  },
+
+  showFieldError(fieldId, errorId, message) {
+    const field = document.getElementById(fieldId);
+    const errorEl = document.getElementById(errorId);
+    if (field) {
+      field.classList.add('border-rose-500', 'ring-1', 'ring-rose-400');
+      field.focus();
+    }
+    if (errorEl) {
+      errorEl.innerText = message;
+      errorEl.classList.remove('hidden');
+    }
+  },
+
+  fillDemoAccount(email, password) {
+    this.switchAuthMode('signin');
+    const emailInput = document.getElementById('signin-email');
+    const passInput = document.getElementById('signin-password');
+    if (emailInput) emailInput.value = email;
+    if (passInput) passInput.value = password;
+    this.clearAuthErrors();
+    this.clearAuthAlert();
+  },
+
+  async handleLoginSubmit(event) {
+    if (event) event.preventDefault();
+    this.clearAuthErrors();
+    this.clearAuthAlert();
+
+    const emailInput = document.getElementById('signin-email');
+    const passInput = document.getElementById('signin-password');
+    const btn = document.getElementById('signin-btn');
+
+    const email = emailInput ? emailInput.value.trim() : '';
+    const password = passInput ? passInput.value : '';
+
+    let hasError = false;
+    if (!email) {
+      this.showFieldError('signin-email', 'signin-email-error', 'Email address is required.');
+      hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.showFieldError('signin-email', 'signin-email-error', 'Please enter a valid campus email address.');
+      hasError = true;
+    }
+
+    if (!password) {
+      this.showFieldError('signin-password', 'signin-password-error', 'Password is required.');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Loading button state
+    const originalBtnHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Signing in...`;
+    }
+
+    try {
+      const res = await ApiClient.post('/auth/login', { email, password });
+      AppState.user = res.user;
+      AppState.token = res.token;
+      AppState.isAuthenticated = true;
+      if (res.token) {
+        localStorage.setItem('unipulse_token', res.token);
+      }
+      showToast(`Welcome back, ${res.user.name}!`, 'success');
+      this.navigateTo('dashboard');
+    } catch (err) {
+      const errMsg = err.message || 'Invalid email or password. Please try again.';
+      this.setAuthAlert('error', errMsg);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+      }
+    }
+  },
+
+  async handleRegisterSubmit(event) {
+    if (event) event.preventDefault();
+    this.clearAuthErrors();
+    this.clearAuthAlert();
+
+    const nameInput = document.getElementById('reg-name');
+    const emailInput = document.getElementById('reg-email');
+    const studentIdInput = document.getElementById('reg-student-id');
+    const majorInput = document.getElementById('reg-major');
+    const passInput = document.getElementById('reg-password');
+    const confirmInput = document.getElementById('reg-confirm-password');
+    const btn = document.getElementById('reg-btn');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+    const student_id = studentIdInput ? studentIdInput.value.trim() : '';
+    const major = majorInput ? majorInput.value.trim() : '';
+    const password = passInput ? passInput.value : '';
+    const confirmPassword = confirmInput ? confirmInput.value : '';
+
+    let hasError = false;
+    if (!name) {
+      this.showFieldError('reg-name', 'reg-name-error', 'Full name is required.');
+      hasError = true;
+    }
+
+    if (!email) {
+      this.showFieldError('reg-email', 'reg-email-error', 'Campus email address is required.');
+      hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.showFieldError('reg-email', 'reg-email-error', 'Please enter a valid campus email address.');
+      hasError = true;
+    }
+
+    if (!password) {
+      this.showFieldError('reg-password', 'reg-password-error', 'Password is required.');
+      hasError = true;
+    } else if (password.length < 6) {
+      this.showFieldError('reg-password', 'reg-password-error', 'Password must be at least 6 characters long.');
+      hasError = true;
+    }
+
+    if (password && confirmPassword !== password) {
+      this.showFieldError('reg-confirm-password', 'reg-confirm-error', 'Passwords do not match.');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Loading button state
+    const originalBtnHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Creating account...`;
+    }
+
+    try {
+      const res = await ApiClient.post('/auth/register', {
+        name,
+        email,
+        password,
+        student_id: student_id || null,
+        major: major || null
+      });
+      AppState.user = res.user;
+      AppState.token = res.token;
+      AppState.isAuthenticated = true;
+      if (res.token) {
+        localStorage.setItem('unipulse_token', res.token);
+      }
+      showToast(`Account created! Welcome to UniPulse, ${res.user.name}!`, 'success');
+      this.navigateTo('dashboard');
+    } catch (err) {
+      const isDuplicate = err.status === 409 || (err.message && err.message.toLowerCase().includes('already exists'));
+      const errMsg = isDuplicate
+        ? 'An account with this email already exists. Please sign in instead.'
+        : (err.message || 'Registration failed. Please check your information and try again.');
+      this.setAuthAlert('error', errMsg);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+      }
+    }
+  },
+
+  async handleLogout() {
+    try {
+      await ApiClient.post('/auth/logout');
+    } catch (e) {
+      // Continue client cleanup even if network fails
+    }
+    AppState.user = null;
+    AppState.token = null;
+    AppState.isAuthenticated = false;
+    localStorage.removeItem('unipulse_token');
+    showToast('Signed out successfully.', 'info');
+    this.navigateTo('login');
+  },
+
+  async checkAuthSession() {
+    try {
+      const user = await ApiClient.get('/auth/me');
+      if (user && user.id) {
+        AppState.user = user;
+        AppState.isAuthenticated = true;
+        return true;
+      }
+    } catch (e) {
+      // Unauthorized or session expired
+    }
+    AppState.user = null;
+    AppState.isAuthenticated = false;
+    return false;
+  },
+
   // Switch between Student and Administrator
   async toggleRole() {
-    const isCurrentlyStudent = AppState.user.role === 'student';
+    const isCurrentlyStudent = AppState.user && AppState.user.role === 'student';
     const newRole = isCurrentlyStudent ? 'admin' : 'student';
 
     try {
@@ -34,6 +303,7 @@ export const UniPulse = {
       const res = await ApiClient.post('/auth/login', loginPayload);
       AppState.user = res.user;
       AppState.token = res.token;
+      AppState.isAuthenticated = true;
       localStorage.setItem('unipulse_token', res.token);
 
       showToast(`Switched to ${newRole === 'admin' ? 'Administrator' : 'Student'} Profile`, 'info');
@@ -1179,6 +1449,19 @@ export const UniPulse = {
     const root = document.getElementById('app-root');
     if (!root) return;
 
+    if (AppState.activeView === 'login' || !AppState.isAuthenticated) {
+      root.innerHTML = `
+        <div class="min-h-screen flex flex-col justify-between">
+          <main class="flex-1 flex items-center justify-center p-4">
+            ${renderLogin()}
+          </main>
+        </div>
+        <div id="modal-root"></div>
+        <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+      `;
+      return;
+    }
+
     let viewHtml = '';
     switch (AppState.activeView) {
       case 'dashboard': viewHtml = renderDashboard(); break;
@@ -1232,11 +1515,21 @@ export const UniPulse = {
   // -----------------------------------------------------------------------
   // Initial Bootstrapping
   // -----------------------------------------------------------------------
-  init() {
+  async init() {
     // Read route from window hash if provided
     const hash = window.location.hash.replace('#', '');
-    if (hash && ['dashboard', 'assistant', 'campusMap', 'lostFound', 'spaces', 'events', 'profile', 'admin'].includes(hash)) {
-      AppState.activeView = hash;
+
+    // Check existing auth session via HTTP-only cookie or stored JWT
+    const isAuthenticated = await this.checkAuthSession();
+
+    if (!isAuthenticated) {
+      this.navigateTo('login');
+    } else {
+      if (hash && ['dashboard', 'assistant', 'campusMap', 'lostFound', 'spaces', 'events', 'profile', 'admin'].includes(hash)) {
+        this.navigateTo(hash);
+      } else {
+        this.navigateTo('dashboard');
+      }
     }
 
     // Connect Realtime SSE for Study Spaces
@@ -1305,30 +1598,13 @@ export const UniPulse = {
         this.navigateTo(h);
       }
     });
-
-    // Initial render
-    this.render();
-
-    // Preload initial datasets
-    this.loadSpaces();
-    this.loadLostItems();
-    this.loadEvents();
-
-    if (AppState.activeView === 'dashboard') {
-      this.loadDashboard();
-    } else if (AppState.activeView === 'admin') {
-      this.loadAdmin();
-    } else if (AppState.activeView === 'profile') {
-      this.loadProfile();
-    } else if (AppState.activeView === 'campusMap') {
-      this.updateMapRoute();
-    }
   }
 };
 
 // Auto-boot on DOM ready
 if (typeof window !== 'undefined') {
   window.UniPulse = UniPulse;
+  window.AppState = AppState;
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => UniPulse.init());
   } else {

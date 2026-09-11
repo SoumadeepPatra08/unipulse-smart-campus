@@ -5,18 +5,10 @@
 const API_BASE = '/api';
 
 export const AppState = {
-  user: {
-    id: 'user-alex',
-    name: 'Alex Rivera',
-    email: 'alex@campus.edu',
-    role: 'student', // 'student' | 'admin'
-    student_id: 'CS-2027-4819',
-    major: 'B.S. Computer Science',
-    grad_year: "'27",
-    interests: ['AI & Coding', 'Robotics', 'Hackathons', 'Campus Life'],
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
-  },
-  token: localStorage.getItem('unipulse_token') || 'demo-token',
+  user: null,
+  isAuthenticated: false,
+  authMode: 'signin',
+  token: localStorage.getItem('unipulse_token') || null,
   activeView: 'dashboard',
   searchQuery: '',
   unreadNotifications: 2,
@@ -57,10 +49,18 @@ export const ApiClient = {
     };
 
     try {
-      const response = await fetch(url, { ...options, headers });
-      const json = await response.json();
+      const response = await fetch(url, { ...options, headers, credentials: 'include' });
+      let json;
+      try {
+        json = await response.json();
+      } catch (e) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
       if (!response.ok || json.error) {
-        throw new Error(json.error?.message || `HTTP error ${response.status}`);
+        const err = new Error(json.error?.message || `HTTP error ${response.status}`);
+        err.status = response.status;
+        err.data = json;
+        throw err;
       }
       return json.data;
     } catch (err) {
@@ -100,6 +100,7 @@ export const ApiClient = {
       const response = await fetch(url, {
         method: 'POST',
         headers,
+        credentials: 'include',
         body: JSON.stringify({ message, session_id: sessionId, stream: true })
       });
 

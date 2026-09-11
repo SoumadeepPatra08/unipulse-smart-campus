@@ -3,7 +3,16 @@
 // =========================================================================
 
 export function renderProfile() {
-  const u = AppState.user;
+  const u = AppState.user || {
+    name: 'Campus Student',
+    role: 'student',
+    major: 'Computer Science',
+    grad_year: "'27",
+    student_id: 'CS-2027-0000',
+    email: 'student@campus.edu',
+    interests: [],
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+  };
 
   return `
     <div class="max-w-4xl mx-auto space-y-6 animate-fadeIn pb-12">
@@ -19,15 +28,22 @@ export function renderProfile() {
                 ${u.role}
               </span>
             </div>
-            <p class="text-sm font-semibold text-slate-600 mt-0.5">${u.major} • Class of ${u.grad_year}</p>
-            <p class="text-xs text-slate-400 mt-1">Student ID: <span class="font-mono font-bold text-slate-700">${u.student_id}</span> • ${u.email}</p>
+            <p class="text-sm font-semibold text-slate-600 mt-0.5">${u.major || 'Undergraduate'} • Class of ${u.grad_year || "'27"}</p>
+            <p class="text-xs text-slate-400 mt-1">Student ID: <span class="font-mono font-bold text-slate-700">${u.student_id || 'N/A'}</span> • ${u.email}</p>
           </div>
         </div>
 
-        <button onclick="UniPulse.toggleRole()"
-                class="relative z-10 px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 transition-all shadow-2xs hover:border-indigo-300">
-          Switch to ${u.role === 'admin' ? 'Student' : 'Admin'} Mode
-        </button>
+        <div class="flex items-center gap-2 relative z-10 flex-wrap">
+          <button onclick="UniPulse.toggleRole()"
+                  class="px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 transition-all shadow-2xs hover:border-indigo-300">
+            Switch to ${u.role === 'admin' ? 'Student' : 'Admin'} Mode
+          </button>
+          <button onclick="UniPulse.handleLogout()"
+                  class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50/80 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
       </div>
 
       <!-- Academic Interests & Recommendation Personalization -->

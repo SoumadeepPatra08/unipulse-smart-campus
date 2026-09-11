@@ -24,7 +24,7 @@ if BASE_DIR not in sys.path:
 
 from backend.db import init_db, get_db_connection
 from backend.routes import (
-    REALTIME_CLIENTS, handle_login, handle_get_me, handle_search,
+    REALTIME_CLIENTS, handle_login, handle_register, handle_logout, handle_get_me, handle_search,
     handle_assistant_message, record_assistant_exchange, get_auth_user,
     handle_get_items, handle_create_item,
     handle_get_item_matches, handle_claim_match, handle_get_locations,
@@ -85,11 +85,14 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return {}
         return {}
 
-    def send_json(self, data, status=200):
+    def send_json(self, data, status=200, cookies=None):
         body = json.dumps(data).encode('utf-8')
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', str(len(body)))
+        if cookies:
+            for cookie in cookies:
+                self.send_header('Set-Cookie', cookie)
         self.end_headers()
         self.wfile.write(body)
 
@@ -157,10 +160,33 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
     def dispatch_api_post(self, path, body):
         clean_path = path[4:] if path.startswith("/api") else path
 
-        # Auth
+        # Auth: Register
+        if clean_path == "/auth/register":
+            res = handle_register(body)
+            status_code = res.get("meta", {}).get("status_code", 201) if not res.get("error") else res["error"]["code"]
+            cookies = []
+            if not res.get("error") and res.get("data", {}).get("token"):
+                token = res["data"]["token"]
+                cookie = f"token={token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800"
+                cookies.append(cookie)
+            return self.send_json(res, status_code, cookies=cookies)
+
+        # Auth: Login
         if clean_path == "/auth/login":
             res = handle_login(body)
-            return self.send_json(res, 200 if not res["error"] else 401)
+            status_code = 200 if not res.get("error") else res["error"]["code"]
+            cookies = []
+            if not res.get("error") and res.get("data", {}).get("token"):
+                token = res["data"]["token"]
+                cookie = f"token={token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800"
+                cookies.append(cookie)
+            return self.send_json(res, status_code, cookies=cookies)
+
+        # Auth: Logout
+        if clean_path == "/auth/logout":
+            res = handle_logout()
+            clear_cookie = "token=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+            return self.send_json(res, 200, cookies=[clear_cookie])
 
         # AI Campus Assistant
         if clean_path in ("/assistant/message", "/assistant/query"):

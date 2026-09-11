@@ -8,6 +8,7 @@ import json
 from datetime import datetime, timezone
 from backend.db import init_db, get_db_connection
 from backend.matching import generate_embedding, compute_match_analysis
+from backend.auth import hash_password
 
 def seed_database():
     init_db()
@@ -25,13 +26,16 @@ def seed_database():
 
     now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
+    alex_hash = hash_password("alex123")
+    admin_hash = hash_password("admin123")
+
     # 1. Users
     users_data = [
         (
             "user-alex",
             "Alex Rivera",
             "alex@campus.edu",
-            "alex123",
+            alex_hash,
             "student",
             "CS-2027-4819",
             "B.S. Computer Science",
@@ -44,7 +48,7 @@ def seed_database():
             "user-admin",
             "Dr. Sarah Chen",
             "admin@campus.edu",
-            "admin123",
+            admin_hash,
             "admin",
             "FAC-1002",
             "Campus Operations Lead",

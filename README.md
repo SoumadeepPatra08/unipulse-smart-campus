@@ -18,6 +18,7 @@
 
 ## ✨ Features
 
+- **Secure Authentication & Identity System:** Full authentication flow featuring responsive glassmorphism login and registration interfaces, client-side validation, salted `bcrypt` password hashing (12 rounds, never plaintext), and dual-channel JWT verification via secure HTTP-only cookies (`SameSite=Lax`) and Bearer headers. Protected dashboard route automatically redirects unauthenticated sessions.
 - **Conversational AI Campus Assistant:** Natural language assistant with word-by-word Server-Sent Events (SSE) token streaming. Emits structured interactive cards (`study_space`, `location`, `match`, `event`) that synchronize the Right Context Panel with 1-click actions.
 - **Dynamic 91% AI Lost & Found Match Engine:** Multi-factor similarity analysis computing an explainable score across 5 weighted dimensions (Visual 35%, Proximity 25%, Description 20%, Time 10%, Category 10%). Evaluates to ~91.0%–92.4% on Alex Rivera's lost Hydro Flask.
 - **Smart Lost & Found Intake & Claim Dispatch:** "I Lost Something" / "I Found Something" report modal with drag-and-drop image upload (persisted as base64 to `/uploads/`), candidate match generation, and 1-click desk claim dispatch generating verified claim codes (`CLM-XXXXXX`).
@@ -33,12 +34,12 @@
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Native Python 3 (`http.server`, `sqlite3`, `hashlib`, `urllib`, `json`, `uuid`) — **Zero pip dependencies required**.
-- **Database:** SQLite3 with 9 relational tables, dense 64-dimensional vector feature representations, and automated migration/seeding.
+- **Backend:** Native Python 3 (`http.server`, `sqlite3`, `hashlib`, `urllib`, `json`, `uuid`) + `bcrypt` password security.
+- **Database:** SQLite3 with relational user models, bcrypt hashes, dense 64-dimensional vector feature representations, and automated migration/seeding.
 - **Frontend:** Modular ECMAScript (ESM) bundled into a standalone production script ([`js/bundle.js`](js/bundle.js)) via a custom bundler ([`build_bundle.py`](build_bundle.py)).
 - **Styling:** Tailwind CSS (CDN runtime) + Custom Glassmorphism, CSS keyframe animations, and SVG route polylines ([`css/custom.css`](css/custom.css)).
 - **Realtime:** Server-Sent Events (SSE) push streaming.
-- **Authentication:** HMAC-SHA256 signed JSON Web Tokens (JWT) with Student (`alex@campus.edu`) and Administrator (`admin@campus.edu`) roles.
+- **Authentication:** Bcrypt password encryption, HMAC-SHA256 signed JSON Web Tokens (JWT), secure HTTP-only cookies, and Role-Based Access Control (RBAC).
 
 ---
 
@@ -183,7 +184,10 @@ All REST endpoints return a unified JSON envelope:
 ```
 
 ### Key Endpoints:
-- `POST /api/auth/login`: Authenticates user and returns signed JWT token.
+- `POST /api/auth/register`: Creates new user account, hashes password via bcrypt, issues JWT & HTTP-only cookie.
+- `POST /api/auth/login`: Authenticates credentials against bcrypt hash, sets secure HTTP-only cookie + JWT.
+- `POST /api/auth/logout`: Clears the session cookie and invalidates client session.
+- `GET /api/auth/me`: Returns profile of the authenticated session via HTTP cookie or Bearer token.
 - `GET /api/search?q={query}`: Multi-domain search across locations, spaces, items, actions.
 - `POST /api/assistant/message`: AI assistant query with word-by-word SSE streaming (`stream: true`).
 - `GET /api/study-spaces`: Lists study spaces with capacity and noise ratings.

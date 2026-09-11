@@ -4,7 +4,13 @@
 
 export function renderSidebar() {
   const current = AppState.activeView;
-  const isAdmin = AppState.user.role === 'admin';
+  const user = AppState.user || {
+    name: 'Campus Student',
+    major: 'Computer Science',
+    role: 'student',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+  };
+  const isAdmin = user.role === 'admin';
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>' },
@@ -83,12 +89,15 @@ export function renderSidebar() {
           <span class="text-[10px] text-indigo-600 underline">Switch</span>
         </button>
 
-        <div class="flex items-center gap-3 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
-          <img src="${AppState.user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
+        <div class="flex items-center gap-2.5 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
+          <img src="${user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-bold text-slate-900 truncate">${AppState.user.name}</div>
-            <div class="text-[11px] text-slate-400 truncate">${AppState.user.major}</div>
+            <div class="text-xs font-bold text-slate-900 truncate">${user.name}</div>
+            <div class="text-[11px] text-slate-400 truncate">${user.major || user.email || 'Student'}</div>
           </div>
+          <button onclick="UniPulse.handleLogout()" title="Log out" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
         </div>
       </div>
     </aside>

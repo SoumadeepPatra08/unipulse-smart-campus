@@ -13,18 +13,10 @@
   const API_BASE = '/api';
   
   const AppState = {
-    user: {
-      id: 'user-alex',
-      name: 'Alex Rivera',
-      email: 'alex@campus.edu',
-      role: 'student', // 'student' | 'admin'
-      student_id: 'CS-2027-4819',
-      major: 'B.S. Computer Science',
-      grad_year: "'27",
-      interests: ['AI & Coding', 'Robotics', 'Hackathons', 'Campus Life'],
-      avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
-    },
-    token: localStorage.getItem('unipulse_token') || 'demo-token',
+    user: null,
+    isAuthenticated: false,
+    authMode: 'signin',
+    token: localStorage.getItem('unipulse_token') || null,
     activeView: 'dashboard',
     searchQuery: '',
     unreadNotifications: 2,
@@ -65,10 +57,18 @@
       };
   
       try {
-        const response = await fetch(url, { ...options, headers });
-        const json = await response.json();
+        const response = await fetch(url, { ...options, headers, credentials: 'include' });
+        let json;
+        try {
+          json = await response.json();
+        } catch (e) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
         if (!response.ok || json.error) {
-          throw new Error(json.error?.message || `HTTP error ${response.status}`);
+          const err = new Error(json.error?.message || `HTTP error ${response.status}`);
+          err.status = response.status;
+          err.data = json;
+          throw err;
         }
         return json.data;
       } catch (err) {
@@ -108,6 +108,7 @@
         const response = await fetch(url, {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: JSON.stringify({ message, session_id: sessionId, stream: true })
         });
   
@@ -698,7 +699,13 @@
   
   function renderSidebar() {
     const current = AppState.activeView;
-    const isAdmin = AppState.user.role === 'admin';
+    const user = AppState.user || {
+      name: 'Campus Student',
+      major: 'Computer Science',
+      role: 'student',
+      avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    };
+    const isAdmin = user.role === 'admin';
   
     const navItems = [
       { id: 'dashboard', label: 'Dashboard', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>' },
@@ -777,12 +784,15 @@
             <span class="text-[10px] text-indigo-600 underline">Switch</span>
           </button>
   
-          <div class="flex items-center gap-3 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
-            <img src="${AppState.user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
+            <img src="${user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
             <div class="flex-1 min-w-0">
-              <div class="text-xs font-bold text-slate-900 truncate">${AppState.user.name}</div>
-              <div class="text-[11px] text-slate-400 truncate">${AppState.user.major}</div>
+              <div class="text-xs font-bold text-slate-900 truncate">${user.name}</div>
+              <div class="text-[11px] text-slate-400 truncate">${user.major || user.email || 'Student'}</div>
             </div>
+            <button onclick="UniPulse.handleLogout()" title="Log out" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </button>
           </div>
         </div>
       </aside>
@@ -859,13 +869,222 @@
             </div>
           </div>
   
-          <!-- User Mini Avatar -->
-          <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')">
-            <img src="${AppState.user.avatar_url}" alt="User avatar"
-                 class="w-9 h-9 rounded-xl object-cover border border-slate-200 ring-2 ring-indigo-50 hover:ring-indigo-200 transition-all">
-          </div>
+          <!-- User Mini Avatar & Logout Action -->
+          ${AppState.user ? `
+            <div class="flex items-center gap-2">
+              <button onclick="UniPulse.handleLogout()"
+                      title="Log out of UniPulse"
+                      class="px-2.5 py-1.5 rounded-xl border border-rose-200/80 bg-rose-50/70 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs backdrop-blur-sm">
+                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span class="hidden sm:inline">Logout</span>
+              </button>
+              <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')" title="View profile">
+                <img src="${AppState.user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="User avatar"
+                     class="w-9 h-9 rounded-xl object-cover border border-slate-200 ring-2 ring-indigo-50 hover:ring-indigo-200 transition-all">
+              </div>
+            </div>
+          ` : `
+            <button onclick="UniPulse.navigateTo('login')" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs">
+              Sign In
+            </button>
+          `}
         </div>
       </header>
+    `;
+  }
+
+  // --- Source: js/views/login.js ---
+  // =========================================================================
+  // UniPulse Authentication View: Responsive Glassmorphic Sign In & Registration
+  // =========================================================================
+  
+  function renderLogin() {
+    return `
+      <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
+        <div class="w-full max-w-md">
+          <!-- Brand Header & Emblem -->
+          <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-3xl bg-indigo-600 text-white font-black text-2xl shadow-xl shadow-indigo-600/30 mb-3 border border-indigo-400/30">
+              ⚡
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Uni<span class="text-indigo-600">Pulse</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Smart Campus Companion • Secure Authentication
+            </p>
+          </div>
+  
+          <!-- Glassmorphism Auth Card -->
+          <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <!-- Ambient Card Accent -->
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
+  
+            <!-- Auth Mode Toggle Tabs -->
+            <div class="flex items-center p-1 rounded-2xl bg-white/40 dark:bg-slate-800/40 border border-white/50 dark:border-white/10 mb-6 backdrop-blur-md">
+              <button id="auth-tab-signin"
+                      type="button"
+                      onclick="UniPulse.switchAuthMode('signin')"
+                      class="flex-1 py-2 text-xs font-bold rounded-xl transition-all shadow-xs bg-indigo-600 text-white">
+                Sign In
+              </button>
+              <button id="auth-tab-register"
+                      type="button"
+                      onclick="UniPulse.switchAuthMode('register')"
+                      class="flex-1 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 rounded-xl hover:text-slate-900 transition-all">
+                Create Account
+              </button>
+            </div>
+  
+            <!-- Dynamic Alert Box (Success / Error) -->
+            <div id="auth-alert" class="hidden mb-5 p-3.5 rounded-2xl text-xs font-medium flex items-start gap-2.5 transition-all">
+              <span id="auth-alert-icon" class="text-base leading-none">⚠️</span>
+              <span id="auth-alert-msg" class="flex-1 leading-relaxed"></span>
+            </div>
+  
+            <!-- Sign In Form -->
+            <form id="signin-form" onsubmit="UniPulse.handleLoginSubmit(event)" class="space-y-4">
+              <div>
+                <label for="signin-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Campus Email Address <span class="text-rose-500">*</span>
+                </label>
+                <input id="signin-email"
+                       type="email"
+                       autocomplete="email"
+                       placeholder="alex@campus.edu"
+                       class="w-full px-4 py-3 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="signin-email-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="signin-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Password <span class="text-rose-500">*</span>
+                  </label>
+                </div>
+                <input id="signin-password"
+                       type="password"
+                       autocomplete="current-password"
+                       placeholder="••••••••"
+                       class="w-full px-4 py-3 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="signin-password-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <button id="signin-btn"
+                      type="submit"
+                      class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 mt-2">
+                <span>Sign In to UniPulse</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </form>
+  
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="UniPulse.handleRegisterSubmit(event)" class="space-y-3.5 hidden">
+              <div>
+                <label for="reg-name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Full Name <span class="text-rose-500">*</span>
+                </label>
+                <input id="reg-name"
+                       type="text"
+                       autocomplete="name"
+                       placeholder="Alex Rivera"
+                       class="w-full px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="reg-name-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <div>
+                <label for="reg-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Campus Email <span class="text-rose-500">*</span>
+                </label>
+                <input id="reg-email"
+                       type="email"
+                       autocomplete="email"
+                       placeholder="student@campus.edu"
+                       class="w-full px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="reg-email-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="reg-student-id" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Student ID <span class="text-slate-400 text-[10px] font-normal">(optional)</span>
+                  </label>
+                  <input id="reg-student-id"
+                         type="text"
+                         placeholder="CS-2027-1234"
+                         class="w-full px-3.5 py-2.5 rounded-2xl glass-input text-xs focus:outline-none transition-all">
+                </div>
+  
+                <div>
+                  <label for="reg-major" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Major <span class="text-slate-400 text-[10px] font-normal">(optional)</span>
+                  </label>
+                  <input id="reg-major"
+                         type="text"
+                         placeholder="Computer Science"
+                         class="w-full px-3.5 py-2.5 rounded-2xl glass-input text-xs focus:outline-none transition-all">
+                </div>
+              </div>
+  
+              <div>
+                <label for="reg-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Create Password <span class="text-rose-500">*</span>
+                </label>
+                <input id="reg-password"
+                       type="password"
+                       autocomplete="new-password"
+                       placeholder="Min. 6 characters"
+                       class="w-full px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="reg-password-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <div>
+                <label for="reg-confirm-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Confirm Password <span class="text-rose-500">*</span>
+                </label>
+                <input id="reg-confirm-password"
+                       type="password"
+                       autocomplete="new-password"
+                       placeholder="Re-enter your password"
+                       class="w-full px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                <div id="reg-confirm-error" class="text-[11px] text-rose-500 font-medium mt-1 hidden"></div>
+              </div>
+  
+              <button id="reg-btn"
+                      type="submit"
+                      class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 mt-2">
+                <span>Create Free Account</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </button>
+            </form>
+  
+            <!-- Quick Fill Demo Accounts -->
+            <div class="mt-6 pt-5 border-t border-white/30 dark:border-white/10 text-center">
+              <div class="text-[11px] font-semibold text-slate-400 mb-2">
+                Quick Sign In with Demo Accounts:
+              </div>
+              <div class="flex items-center justify-center gap-2 flex-wrap">
+                <button type="button"
+                        onclick="UniPulse.fillDemoAccount('alex@campus.edu', 'alex123')"
+                        class="px-3 py-1 rounded-xl glass-pill text-[11px] font-bold text-indigo-700 hover:border-indigo-400 transition-all">
+                  🎓 Alex Rivera (Student)
+                </button>
+                <button type="button"
+                        onclick="UniPulse.fillDemoAccount('admin@campus.edu', 'admin123')"
+                        class="px-3 py-1 rounded-xl glass-pill text-[11px] font-bold text-purple-700 hover:border-purple-400 transition-all">
+                  🛡️ Dr. Sarah Chen (Admin)
+                </button>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Privacy & Protection Footnote -->
+          <p class="text-center text-[11px] text-slate-400 mt-4">
+            Protected with bcrypt password encryption & HTTP-only JWT security cookies.
+          </p>
+        </div>
+      </div>
     `;
   }
 
@@ -1570,7 +1789,16 @@
   // =========================================================================
   
   function renderProfile() {
-    const u = AppState.user;
+    const u = AppState.user || {
+      name: 'Campus Student',
+      role: 'student',
+      major: 'Computer Science',
+      grad_year: "'27",
+      student_id: 'CS-2027-0000',
+      email: 'student@campus.edu',
+      interests: [],
+      avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    };
   
     return `
       <div class="max-w-4xl mx-auto space-y-6 animate-fadeIn pb-12">
@@ -1586,15 +1814,22 @@
                   ${u.role}
                 </span>
               </div>
-              <p class="text-sm font-semibold text-slate-600 mt-0.5">${u.major} • Class of ${u.grad_year}</p>
-              <p class="text-xs text-slate-400 mt-1">Student ID: <span class="font-mono font-bold text-slate-700">${u.student_id}</span> • ${u.email}</p>
+              <p class="text-sm font-semibold text-slate-600 mt-0.5">${u.major || 'Undergraduate'} • Class of ${u.grad_year || "'27"}</p>
+              <p class="text-xs text-slate-400 mt-1">Student ID: <span class="font-mono font-bold text-slate-700">${u.student_id || 'N/A'}</span> • ${u.email}</p>
             </div>
           </div>
   
-          <button onclick="UniPulse.toggleRole()"
-                  class="relative z-10 px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 transition-all shadow-2xs hover:border-indigo-300">
-            Switch to ${u.role === 'admin' ? 'Student' : 'Admin'} Mode
-          </button>
+          <div class="flex items-center gap-2 relative z-10 flex-wrap">
+            <button onclick="UniPulse.toggleRole()"
+                    class="px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 transition-all shadow-2xs hover:border-indigo-300">
+              Switch to ${u.role === 'admin' ? 'Student' : 'Admin'} Mode
+            </button>
+            <button onclick="UniPulse.handleLogout()"
+                    class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50/80 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
   
         <!-- Academic Interests & Recommendation Personalization -->
@@ -1854,12 +2089,20 @@
   // =========================================================================
   
   const UniPulse = {
-    // Navigation Router
+    // Navigation Router & Route Guard
     navigateTo(viewName) {
+      if (!AppState.isAuthenticated && viewName !== 'login') {
+        viewName = 'login';
+      } else if (AppState.isAuthenticated && viewName === 'login') {
+        viewName = 'dashboard';
+      }
+  
       AppState.activeView = viewName;
       window.location.hash = viewName;
       this.render();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+      if (viewName === 'login') return;
   
       // Fetch view specific fresh data
       if (viewName === 'dashboard') this.loadDashboard();
@@ -1871,9 +2114,270 @@
       if (viewName === 'campusMap') this.updateMapRoute();
     },
   
+    // -----------------------------------------------------------------------
+    // Authentication & Session Management
+    // -----------------------------------------------------------------------
+    switchAuthMode(mode) {
+      const signinForm = document.getElementById('signin-form');
+      const registerForm = document.getElementById('register-form');
+      const tabSignin = document.getElementById('auth-tab-signin');
+      const tabRegister = document.getElementById('auth-tab-register');
+      this.clearAuthAlert();
+      this.clearAuthErrors();
+  
+      if (mode === 'register') {
+        AppState.authMode = 'register';
+        if (signinForm) signinForm.classList.add('hidden');
+        if (registerForm) registerForm.classList.remove('hidden');
+        if (tabSignin) {
+          tabSignin.className = 'flex-1 py-2 text-xs font-semibold text-slate-600 rounded-xl hover:text-slate-900 transition-all';
+        }
+        if (tabRegister) {
+          tabRegister.className = 'flex-1 py-2 text-xs font-bold rounded-xl transition-all shadow-xs bg-indigo-600 text-white';
+        }
+      } else {
+        AppState.authMode = 'signin';
+        if (registerForm) registerForm.classList.add('hidden');
+        if (signinForm) signinForm.classList.remove('hidden');
+        if (tabRegister) {
+          tabRegister.className = 'flex-1 py-2 text-xs font-semibold text-slate-600 rounded-xl hover:text-slate-900 transition-all';
+        }
+        if (tabSignin) {
+          tabSignin.className = 'flex-1 py-2 text-xs font-bold rounded-xl transition-all shadow-xs bg-indigo-600 text-white';
+        }
+      }
+    },
+  
+    setAuthAlert(type, message) {
+      const alertEl = document.getElementById('auth-alert');
+      const msgEl = document.getElementById('auth-alert-msg');
+      const iconEl = document.getElementById('auth-alert-icon');
+      if (!alertEl || !msgEl) return;
+  
+      alertEl.className = `mb-5 p-3.5 rounded-2xl text-xs font-medium flex items-start gap-2.5 transition-all ${
+        type === 'error'
+          ? 'bg-rose-50/90 text-rose-800 border border-rose-200'
+          : 'bg-emerald-50/90 text-emerald-800 border border-emerald-200'
+      }`;
+      if (iconEl) iconEl.innerText = type === 'error' ? '⚠️' : '✅';
+      msgEl.innerText = message;
+    },
+  
+    clearAuthAlert() {
+      const alertEl = document.getElementById('auth-alert');
+      if (alertEl) alertEl.classList.add('hidden');
+    },
+  
+    clearAuthErrors() {
+      const errorEls = document.querySelectorAll('[id$="-error"]');
+      errorEls.forEach(el => {
+        el.innerText = '';
+        el.classList.add('hidden');
+      });
+      const inputs = document.querySelectorAll('.glass-input');
+      inputs.forEach(inp => {
+        inp.classList.remove('border-rose-500', 'ring-1', 'ring-rose-400');
+      });
+    },
+  
+    showFieldError(fieldId, errorId, message) {
+      const field = document.getElementById(fieldId);
+      const errorEl = document.getElementById(errorId);
+      if (field) {
+        field.classList.add('border-rose-500', 'ring-1', 'ring-rose-400');
+        field.focus();
+      }
+      if (errorEl) {
+        errorEl.innerText = message;
+        errorEl.classList.remove('hidden');
+      }
+    },
+  
+    fillDemoAccount(email, password) {
+      this.switchAuthMode('signin');
+      const emailInput = document.getElementById('signin-email');
+      const passInput = document.getElementById('signin-password');
+      if (emailInput) emailInput.value = email;
+      if (passInput) passInput.value = password;
+      this.clearAuthErrors();
+      this.clearAuthAlert();
+    },
+  
+    async handleLoginSubmit(event) {
+      if (event) event.preventDefault();
+      this.clearAuthErrors();
+      this.clearAuthAlert();
+  
+      const emailInput = document.getElementById('signin-email');
+      const passInput = document.getElementById('signin-password');
+      const btn = document.getElementById('signin-btn');
+  
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passInput ? passInput.value : '';
+  
+      let hasError = false;
+      if (!email) {
+        this.showFieldError('signin-email', 'signin-email-error', 'Email address is required.');
+        hasError = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        this.showFieldError('signin-email', 'signin-email-error', 'Please enter a valid campus email address.');
+        hasError = true;
+      }
+  
+      if (!password) {
+        this.showFieldError('signin-password', 'signin-password-error', 'Password is required.');
+        hasError = true;
+      }
+  
+      if (hasError) return;
+  
+      // Loading button state
+      const originalBtnHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Signing in...`;
+      }
+  
+      try {
+        const res = await ApiClient.post('/auth/login', { email, password });
+        AppState.user = res.user;
+        AppState.token = res.token;
+        AppState.isAuthenticated = true;
+        if (res.token) {
+          localStorage.setItem('unipulse_token', res.token);
+        }
+        showToast(`Welcome back, ${res.user.name}!`, 'success');
+        this.navigateTo('dashboard');
+      } catch (err) {
+        const errMsg = err.message || 'Invalid email or password. Please try again.';
+        this.setAuthAlert('error', errMsg);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHtml;
+        }
+      }
+    },
+  
+    async handleRegisterSubmit(event) {
+      if (event) event.preventDefault();
+      this.clearAuthErrors();
+      this.clearAuthAlert();
+  
+      const nameInput = document.getElementById('reg-name');
+      const emailInput = document.getElementById('reg-email');
+      const studentIdInput = document.getElementById('reg-student-id');
+      const majorInput = document.getElementById('reg-major');
+      const passInput = document.getElementById('reg-password');
+      const confirmInput = document.getElementById('reg-confirm-password');
+      const btn = document.getElementById('reg-btn');
+  
+      const name = nameInput ? nameInput.value.trim() : '';
+      const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+      const student_id = studentIdInput ? studentIdInput.value.trim() : '';
+      const major = majorInput ? majorInput.value.trim() : '';
+      const password = passInput ? passInput.value : '';
+      const confirmPassword = confirmInput ? confirmInput.value : '';
+  
+      let hasError = false;
+      if (!name) {
+        this.showFieldError('reg-name', 'reg-name-error', 'Full name is required.');
+        hasError = true;
+      }
+  
+      if (!email) {
+        this.showFieldError('reg-email', 'reg-email-error', 'Campus email address is required.');
+        hasError = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        this.showFieldError('reg-email', 'reg-email-error', 'Please enter a valid campus email address.');
+        hasError = true;
+      }
+  
+      if (!password) {
+        this.showFieldError('reg-password', 'reg-password-error', 'Password is required.');
+        hasError = true;
+      } else if (password.length < 6) {
+        this.showFieldError('reg-password', 'reg-password-error', 'Password must be at least 6 characters long.');
+        hasError = true;
+      }
+  
+      if (password && confirmPassword !== password) {
+        this.showFieldError('reg-confirm-password', 'reg-confirm-error', 'Passwords do not match.');
+        hasError = true;
+      }
+  
+      if (hasError) return;
+  
+      // Loading button state
+      const originalBtnHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Creating account...`;
+      }
+  
+      try {
+        const res = await ApiClient.post('/auth/register', {
+          name,
+          email,
+          password,
+          student_id: student_id || null,
+          major: major || null
+        });
+        AppState.user = res.user;
+        AppState.token = res.token;
+        AppState.isAuthenticated = true;
+        if (res.token) {
+          localStorage.setItem('unipulse_token', res.token);
+        }
+        showToast(`Account created! Welcome to UniPulse, ${res.user.name}!`, 'success');
+        this.navigateTo('dashboard');
+      } catch (err) {
+        const isDuplicate = err.status === 409 || (err.message && err.message.toLowerCase().includes('already exists'));
+        const errMsg = isDuplicate
+          ? 'An account with this email already exists. Please sign in instead.'
+          : (err.message || 'Registration failed. Please check your information and try again.');
+        this.setAuthAlert('error', errMsg);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHtml;
+        }
+      }
+    },
+  
+    async handleLogout() {
+      try {
+        await ApiClient.post('/auth/logout');
+      } catch (e) {
+        // Continue client cleanup even if network fails
+      }
+      AppState.user = null;
+      AppState.token = null;
+      AppState.isAuthenticated = false;
+      localStorage.removeItem('unipulse_token');
+      showToast('Signed out successfully.', 'info');
+      this.navigateTo('login');
+    },
+  
+    async checkAuthSession() {
+      try {
+        const user = await ApiClient.get('/auth/me');
+        if (user && user.id) {
+          AppState.user = user;
+          AppState.isAuthenticated = true;
+          return true;
+        }
+      } catch (e) {
+        // Unauthorized or session expired
+      }
+      AppState.user = null;
+      AppState.isAuthenticated = false;
+      return false;
+    },
+  
     // Switch between Student and Administrator
     async toggleRole() {
-      const isCurrentlyStudent = AppState.user.role === 'student';
+      const isCurrentlyStudent = AppState.user && AppState.user.role === 'student';
       const newRole = isCurrentlyStudent ? 'admin' : 'student';
   
       try {
@@ -1885,6 +2389,7 @@
         const res = await ApiClient.post('/auth/login', loginPayload);
         AppState.user = res.user;
         AppState.token = res.token;
+        AppState.isAuthenticated = true;
         localStorage.setItem('unipulse_token', res.token);
   
         showToast(`Switched to ${newRole === 'admin' ? 'Administrator' : 'Student'} Profile`, 'info');
@@ -3030,6 +3535,19 @@
       const root = document.getElementById('app-root');
       if (!root) return;
   
+      if (AppState.activeView === 'login' || !AppState.isAuthenticated) {
+        root.innerHTML = `
+          <div class="min-h-screen flex flex-col justify-between">
+            <main class="flex-1 flex items-center justify-center p-4">
+              ${renderLogin()}
+            </main>
+          </div>
+          <div id="modal-root"></div>
+          <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+        `;
+        return;
+      }
+  
       let viewHtml = '';
       switch (AppState.activeView) {
         case 'dashboard': viewHtml = renderDashboard(); break;
@@ -3083,11 +3601,21 @@
     // -----------------------------------------------------------------------
     // Initial Bootstrapping
     // -----------------------------------------------------------------------
-    init() {
+    async init() {
       // Read route from window hash if provided
       const hash = window.location.hash.replace('#', '');
-      if (hash && ['dashboard', 'assistant', 'campusMap', 'lostFound', 'spaces', 'events', 'profile', 'admin'].includes(hash)) {
-        AppState.activeView = hash;
+  
+      // Check existing auth session via HTTP-only cookie or stored JWT
+      const isAuthenticated = await this.checkAuthSession();
+  
+      if (!isAuthenticated) {
+        this.navigateTo('login');
+      } else {
+        if (hash && ['dashboard', 'assistant', 'campusMap', 'lostFound', 'spaces', 'events', 'profile', 'admin'].includes(hash)) {
+          this.navigateTo(hash);
+        } else {
+          this.navigateTo('dashboard');
+        }
       }
   
       // Connect Realtime SSE for Study Spaces
@@ -3156,30 +3684,13 @@
           this.navigateTo(h);
         }
       });
-  
-      // Initial render
-      this.render();
-  
-      // Preload initial datasets
-      this.loadSpaces();
-      this.loadLostItems();
-      this.loadEvents();
-  
-      if (AppState.activeView === 'dashboard') {
-        this.loadDashboard();
-      } else if (AppState.activeView === 'admin') {
-        this.loadAdmin();
-      } else if (AppState.activeView === 'profile') {
-        this.loadProfile();
-      } else if (AppState.activeView === 'campusMap') {
-        this.updateMapRoute();
-      }
     }
   };
   
   // Auto-boot on DOM ready
   if (typeof window !== 'undefined') {
     window.UniPulse = UniPulse;
+    window.AppState = AppState;
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => UniPulse.init());
     } else {

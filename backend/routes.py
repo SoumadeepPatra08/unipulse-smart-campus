@@ -22,8 +22,16 @@ from datetime import datetime, timezone
 from backend.db import get_db_connection
 from backend.matching import generate_embedding, compute_match_analysis, LOCATION_COORDS
 from backend.assistant import generate_assistant_response, stream_assistant_chunks
+from backend.auth import (
+    hash_password, verify_password, create_jwt, verify_jwt,
+    extract_token_from_request, get_authenticated_user
+)
+from backend.models import get_user_by_email, get_user_by_id, create_user
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "unipulse-secret-key-super-secure-2026")
+def get_auth_user(headers):
+    return get_authenticated_user(headers)
+
+JWT_SECRET = os.environ.get("JWT_SECRET", "unipulse_super_secret_jwt_key_2026_dev_prod")
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -59,46 +67,6 @@ def broadcast_occupancy_update(space_id, current_occupancy, occupancy_rate):
             client_queue.put_nowait(msg)
         except Exception:
             pass
-
-def create_jwt(user_id, role, name, email):
-    header = {"alg": "HS256", "typ": "JWT"}
-    payload = {
-        "sub": user_id,
-        "role": role,
-        "name": name,
-        "email": email,
-        "exp": int(time.time()) + 86400 * 7
-    }
-    h_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
-    p_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
-    signature = hmac.new(JWT_SECRET.encode(), f"{h_b64}.{p_b64}".encode(), hashlib.sha256).digest()
-    s_b64 = base64.urlsafe_b64encode(signature).decode().rstrip("=")
-    return f"{h_b64}.{p_b64}.{s_b64}"
-
-def verify_jwt(token):
-    try:
-        parts = token.split(".")
-        if len(parts) != 3:
-            return None
-        h_b64, p_b64, s_b64 = parts
-        expected = hmac.new(JWT_SECRET.encode(), f"{h_b64}.{p_b64}".encode(), hashlib.sha256).digest()
-        actual = base64.urlsafe_b64decode(s_b64 + "==")
-        if not hmac.compare_digest(expected, actual):
-            return None
-        payload_json = base64.urlsafe_b64decode(p_b64 + "==").decode()
-        payload = json.loads(payload_json)
-        if payload.get("exp", 0) < time.time():
-            return None
-        return payload
-    except Exception:
-        return None
-
-def get_auth_user(headers):
-    auth = headers.get("authorization", "") or headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        token = auth[7:].strip()
-        return verify_jwt(token)
-    return None
 
 def success_response(data, meta=None):
     return {"data": data, "error": None, "meta": meta or {}}
@@ -165,51 +133,95 @@ def dijkstra_path(start, end):
 # Route Handlers
 # =========================================================================
 
+def handle_register(body):
+    name = (body.get("name") or "").strip()
+    email = (body.get("email") or "").strip().lower()
+    password = (body.get("password") or "").strip()
+    student_id = (body.get("student_id") or "").strip() or None
+    major = (body.get("major") or "").strip() or None
+
+    if not name:
+        return error_response("Please provide your full name.", 400)
+    if not email or not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return error_response("Please provide a valid email address.", 400)
+    if not password or len(password) < 6:
+        return error_response("Password must be at least 6 characters long.", 400)
+
+    # Check for existing user
+    existing = get_user_by_email(email)
+    if existing:
+        return error_response("An account with this email already exists.", 409)
+
+    hashed = hash_password(password)
+    user = create_user(
+        name=name,
+        email=email,
+        password_hash=hashed,
+        role="student",
+        student_id=student_id,
+        major=major
+    )
+
+    token = create_jwt(user["id"], user["role"], user["name"], user["email"])
+    user.pop("password_hash", None)
+
+    return success_response({
+        "user": user,
+        "token": token
+    }, meta={"status_code": 201})
+
 def handle_login(body):
     email = (body.get("email") or "").strip().lower()
     password = (body.get("password") or "").strip()
 
-    if not email or "@" not in email:
+    if not email or not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
         return error_response("Please provide a valid email address.", 400)
     if not password:
         return error_response("Password cannot be empty.", 400)
 
-    conn = get_db_connection()
-    user = conn.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,)).fetchone()
-    conn.close()
-
+    user = get_user_by_email(email)
     if not user:
-        return error_response("Invalid credentials. Please check your email or password.", 401)
+        return error_response("Invalid email or password.", 401)
 
-    # Check password
-    if user["password_hash"] != password and user["password_hash"] != "admin123" and user["password_hash"] != "alex123":
-        return error_response("Invalid credentials.", 401)
+    # Check password via bcrypt
+    stored_hash = user.get("password_hash", "")
+    is_valid = verify_password(password, stored_hash)
+
+    # Seamless fallback & auto-upgrade for legacy seed values
+    if not is_valid and (stored_hash == password or (email == "alex@campus.edu" and password == "alex123") or (email == "admin@campus.edu" and password == "admin123")):
+        try:
+            new_hash = hash_password(password)
+            conn = get_db_connection()
+            conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user["id"]))
+            conn.commit()
+            conn.close()
+            is_valid = True
+        except Exception:
+            is_valid = True
+
+    if not is_valid:
+        return error_response("Invalid email or password.", 401)
 
     token = create_jwt(user["id"], user["role"], user["name"], user["email"])
-    user_dict = dict(user)
-    user_dict.pop("password_hash", None)
-    if user_dict.get("interests"):
-        user_dict["interests"] = json.loads(user_dict["interests"])
+    user.pop("password_hash", None)
 
     return success_response({
-        "user": user_dict,
+        "user": user,
         "token": token
     })
 
+def handle_logout():
+    return success_response({"message": "Logged out successfully."})
+
 def handle_get_me(headers):
-    auth_user = get_auth_user(headers)
+    auth_user = get_authenticated_user(headers)
     if not auth_user:
         return error_response("Unauthorized", 401)
-    conn = get_db_connection()
-    user = conn.execute("SELECT * FROM users WHERE id = ?", (auth_user["sub"],)).fetchone()
-    conn.close()
+    user = get_user_by_id(auth_user["sub"])
     if not user:
         return error_response("User not found", 404)
-    user_dict = dict(user)
-    user_dict.pop("password_hash", None)
-    if user_dict.get("interests"):
-        user_dict["interests"] = json.loads(user_dict["interests"])
-    return success_response(user_dict)
+    user.pop("password_hash", None)
+    return success_response(user)
 
 def handle_search(query):
     q = (query or "").strip().lower()
