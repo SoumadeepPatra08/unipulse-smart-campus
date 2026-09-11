@@ -352,13 +352,13 @@
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">Item Title *</label>
               <input id="report-title" required type="text" placeholder="e.g. Hydro Flask Navy Blue 32oz, Lenovo ThinkPad Charger"
-                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+                class="w-full px-4 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
             </div>
   
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                <select id="report-category" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+                <select id="report-category" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
                   <option value="Bottles & Containers">Bottles & Containers</option>
                   <option value="Electronics">Electronics & Laptops</option>
                   <option value="Keys & Cards">Keys & Campus IDs</option>
@@ -368,7 +368,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1">Campus Location</label>
-                <select id="report-location" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+                <select id="report-location" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
                   <option value="lib">Main Library</option>
                   <option value="b34">Block 34 (Engineering)</option>
                   <option value="sport">Sports Complex</option>
@@ -381,7 +381,7 @@
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">Distinct Features / Description</label>
               <textarea id="report-description" rows="3" placeholder="Colors, stickers, scratches, exact room or desk number..."
-                class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+                class="w-full px-4 py-2 rounded-xl glass-input text-sm focus:outline-none"></textarea>
             </div>
   
             <!-- Drag and Drop Image Intake -->
@@ -588,7 +588,7 @@
           <form onsubmit="UniPulse.handleReserveSubmit(event, '${spaceId}')" class="space-y-4">
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">Select Desk Number</label>
-              <select id="reserve-desk-select" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 font-mono">
+              <select id="reserve-desk-select" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none font-mono">
                 <option value="D-102">Desk D-102 (Window / Dual Power)</option>
                 <option value="D-104">Desk D-104 (Quiet Corner / Power)</option>
                 <option value="D-109">Desk D-109 (Center Cubicle / Lamp)</option>
@@ -720,7 +720,7 @@
     }
   
     return `
-      <aside class="w-64 flex-shrink-0 bg-white border-r border-slate-200/80 flex flex-col justify-between h-screen sticky top-0 z-30 select-none">
+      <aside class="w-64 flex-shrink-0 glass-sidebar flex flex-col justify-between h-screen sticky top-0 z-30 select-none">
         <!-- Top Brand Header -->
         <div class="p-6">
           <div class="flex items-center gap-3 cursor-pointer" onclick="UniPulse.navigateTo('dashboard')">
@@ -741,8 +741,8 @@
                 <button onclick="UniPulse.navigateTo('${item.id}')"
                   class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 group ${
                     isActive
-                      ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-indigo-600/10 text-indigo-700 shadow-xs border border-indigo-600/20 backdrop-blur-sm'
+                      : 'text-slate-600 hover:bg-white/60 hover:text-slate-900'
                   }">
                   <div class="flex items-center gap-3">
                     <span class="${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}">
@@ -766,10 +766,10 @@
         </div>
   
         <!-- Bottom User Profile Card & Role Switcher -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-white/60 bg-white/40 backdrop-blur-md">
           <!-- Role Switcher Button -->
           <button onclick="UniPulse.toggleRole()"
-                  class="w-full mb-3 px-3 py-2 rounded-xl text-xs font-bold border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs flex items-center justify-between transition-colors">
+                  class="w-full mb-3 px-3 py-2 rounded-xl text-xs font-bold border border-white/80 bg-white/70 hover:bg-white/90 text-slate-700 shadow-2xs flex items-center justify-between transition-all backdrop-blur-sm">
             <span class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full ${isAdmin ? 'bg-purple-500' : 'bg-emerald-500'}"></span>
               <span>Role: ${isAdmin ? 'Administrator' : 'Student'}</span>
@@ -777,7 +777,7 @@
             <span class="text-[10px] text-indigo-600 underline">Switch</span>
           </button>
   
-          <div class="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+          <div class="flex items-center gap-3 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
             <img src="${AppState.user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
             <div class="flex-1 min-w-0">
               <div class="text-xs font-bold text-slate-900 truncate">${AppState.user.name}</div>
@@ -796,10 +796,10 @@
   
   function renderHeader() {
     return `
-      <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 px-6 flex items-center justify-between">
+      <header class="h-16 glass-header sticky top-0 z-20 px-6 flex items-center justify-between">
         <!-- Left: Campus Beacon & Breadcrumbs -->
         <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold backdrop-blur-sm">
             <span class="w-2 h-2 rounded-full bg-emerald-500 beacon-pulse"></span>
             <span>Main Campus Online</span>
           </div>
@@ -809,12 +809,12 @@
         <!-- Center: ⌘K Global Search Trigger Bar -->
         <div class="flex-1 max-w-md mx-6">
           <div onclick="UniPulse.openCommandPalette()"
-               class="flex items-center justify-between px-3.5 py-2 rounded-2xl bg-slate-100/80 hover:bg-slate-100 border border-slate-200/60 text-slate-500 text-xs font-medium cursor-pointer transition-colors shadow-2xs">
+               class="flex items-center justify-between px-3.5 py-2 rounded-2xl bg-white/60 hover:bg-white/90 border border-white/80 text-slate-500 text-xs font-medium cursor-pointer transition-all shadow-xs backdrop-blur-sm">
             <div class="flex items-center gap-2.5">
               <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               <span>Search spaces, routes, lost belongings...</span>
             </div>
-            <kbd class="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold text-slate-400 bg-white rounded-lg border border-slate-200 shadow-2xs">
+            <kbd class="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold text-slate-400 bg-white/90 rounded-lg border border-slate-200 shadow-2xs">
               <span>⌘</span><span>K</span>
             </kbd>
           </div>
@@ -824,18 +824,18 @@
         <div class="flex items-center gap-3">
           <!-- Notification Bell -->
           <div class="relative">
-            <button class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors relative"
+            <button class="w-9 h-9 rounded-xl border border-white/80 bg-white/60 hover:bg-white/90 flex items-center justify-center text-slate-600 transition-all shadow-xs backdrop-blur-sm relative"
                     onclick="UniPulse.toggleNotificationFlyout()">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
               ${AppState.unreadNotifications > 0 ? `
-                <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white shadow-xs">
                   ${AppState.unreadNotifications}
                 </span>
               ` : ''}
             </button>
   
             <!-- Notifications Dropdown -->
-            <div id="notification-flyout" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 p-3 z-50 animate-fadeIn">
+            <div id="notification-flyout" class="hidden absolute right-0 mt-2 w-80 glass-modal rounded-2xl shadow-xl p-3.5 z-50 animate-fadeIn">
               <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
                 <span class="text-xs font-bold text-slate-800">Campus Alerts</span>
                 <span class="text-[10px] text-indigo-600 font-semibold cursor-pointer" onclick="UniPulse.clearNotifications()">Mark all read</span>
@@ -887,12 +887,12 @@
           </div>
           <div class="flex items-center gap-2">
             <button onclick="UniPulse.openReportModal('lost')"
-                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-all flex items-center gap-1.5">
+                    class="px-4 py-2 rounded-xl glass-card glass-card-hover text-xs font-semibold text-slate-700 shadow-xs transition-all flex items-center gap-1.5">
               <span class="text-amber-500">●</span>
               <span>Lost Something?</span>
             </button>
             <button onclick="UniPulse.openReportModal('found')"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5">
+                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all flex items-center gap-1.5">
               <span class="text-white">+</span>
               <span>Found Item</span>
             </button>
@@ -900,8 +900,9 @@
         </div>
   
         <!-- AI Hero Search Section with Rotating Suggestion -->
-        <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
-          <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="bg-gradient-to-br from-indigo-950/90 via-indigo-900/85 to-slate-950/90 backdrop-blur-2xl rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden border border-white/20">
+          <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-indigo-500/30 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-12 -top-12 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div class="relative z-10 max-w-2xl">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-xs font-semibold mb-4 backdrop-blur-md">
               <span class="w-2 h-2 rounded-full bg-indigo-400 beacon-pulse"></span>
@@ -911,7 +912,7 @@
             <p class="text-xs sm:text-sm text-indigo-200/80 mb-6">Real-time answers for study spots, campus routes, lost belongings, and events.</p>
   
             <!-- Rotating Input Bar -->
-            <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-2 flex items-center gap-2 shadow-2xl focus-within:ring-2 focus-within:ring-indigo-400">
+            <div class="bg-white/10 backdrop-blur-xl border border-white/25 rounded-2xl p-2 flex items-center gap-2 shadow-2xl focus-within:ring-2 focus-within:ring-indigo-400 focus-within:border-white/40 transition-all">
               <div class="pl-3 text-indigo-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               </div>
@@ -929,15 +930,15 @@
             <!-- Suggested Prompt Chips -->
             <div class="mt-4 flex flex-wrap gap-2 text-xs">
               <button onclick="UniPulse.triggerAssistantPrompt('40 mins free: where to study quietly?')"
-                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-indigo-100 transition-colors">
+                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-indigo-100 transition-all backdrop-blur-md shadow-xs">
                 💡 40 mins free: where to study quietly?
               </button>
               <button onclick="UniPulse.triggerAssistantPrompt('How do I walk from Block 34 to Sports Complex?')"
-                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-indigo-100 transition-colors">
+                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-indigo-100 transition-all backdrop-blur-md shadow-xs">
                 🗺️ Route to Sports Complex
               </button>
               <button onclick="UniPulse.triggerAssistantPrompt('Upcoming campus hackathons this week')"
-                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-indigo-100 transition-colors">
+                      class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-indigo-100 transition-all backdrop-blur-md shadow-xs">
                 🎉 Tech Hackathons
               </button>
             </div>
@@ -945,12 +946,12 @@
         </div>
   
         <!-- Proactive AI Match Banner (91% Confidence Match) -->
-        <div id="dashboard-proactive-match" class="bg-white border-2 border-indigo-500/30 rounded-3xl p-6 shadow-card hover:shadow-card-hover transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+        <div id="dashboard-proactive-match" class="glass-card glass-card-hover border border-indigo-500/30 rounded-3xl p-6 shadow-card transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
           <div class="flex items-start gap-4">
             <!-- Circular Score Badge -->
-            <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center bg-indigo-50 rounded-2xl border border-indigo-100">
+            <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center bg-indigo-600/10 rounded-2xl border border-indigo-600/20 backdrop-blur-sm">
               <svg class="w-14 h-14" viewBox="0 0 36 36">
-                <path class="text-slate-200" stroke-width="3" stroke="currentColor" fill="none"
+                <path class="text-slate-200/80" stroke-width="3" stroke="currentColor" fill="none"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 <path class="text-indigo-600 score-circle" stroke-dasharray="91, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
@@ -960,7 +961,7 @@
   
             <div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-emerald-100 text-emerald-800">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-emerald-100 text-emerald-800 border border-emerald-200">
                   Candidate Matched
                 </span>
                 <span class="text-xs text-slate-400 font-medium">Auto-detected 15m ago</span>
@@ -974,7 +975,7 @@
   
           <div class="flex items-center gap-3 w-full md:w-auto">
             <button onclick="UniPulse.openMatchAnalysisModal('match-91')"
-                    class="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+                    class="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2">
               <span>View 91% AI Match</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
@@ -984,37 +985,37 @@
         <!-- Campus Snapshot Grid: Study Spaces & Campus Events -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Live Study Spaces Quick Card -->
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+          <div class="glass-card rounded-3xl p-6 shadow-card">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">📚</div>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100">📚</div>
                 <div>
                   <h3 class="text-sm font-bold text-slate-900">Live Study Spaces</h3>
                   <div class="text-[11px] text-slate-400">Real-time occupancy meters</div>
                 </div>
               </div>
-              <button onclick="UniPulse.navigateTo('spaces')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800">View All →</button>
+              <button onclick="UniPulse.navigateTo('spaces')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors">View All →</button>
             </div>
   
             <div class="space-y-3" id="dashboard-spaces-list">
-              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div class="p-3.5 rounded-2xl bg-white/60 hover:bg-white/80 border border-white/80 backdrop-blur-sm flex items-center justify-between transition-all shadow-2xs">
                 <div>
                   <div class="text-xs font-bold text-slate-900">Main Library — Level 3</div>
                   <div class="text-[11px] text-slate-500">Silent Focus • 26 Open Desks</div>
                 </div>
                 <div class="text-right">
-                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">78% Full</span>
+                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">78% Full</span>
                   <button onclick="UniPulse.openReserveModal('space-1', 'Main Library — Level 3')" class="block mt-1 text-[11px] font-bold text-indigo-600 hover:underline">Reserve Desk</button>
                 </div>
               </div>
   
-              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div class="p-3.5 rounded-2xl bg-white/60 hover:bg-white/80 border border-white/80 backdrop-blur-sm flex items-center justify-between transition-all shadow-2xs">
                 <div>
                   <div class="text-xs font-bold text-slate-900">Block 34 — Turing Commons</div>
                   <div class="text-[11px] text-slate-500">Moderate • 49 Open Desks</div>
                 </div>
                 <div class="text-right">
-                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800">42% Full</span>
+                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-200">42% Full</span>
                   <button onclick="UniPulse.openReserveModal('space-2', 'Block 34 — Turing Commons')" class="block mt-1 text-[11px] font-bold text-indigo-600 hover:underline">Reserve Desk</button>
                 </div>
               </div>
@@ -1022,20 +1023,20 @@
           </div>
   
           <!-- Campus Events & Hackathons Quick Card -->
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+          <div class="glass-card rounded-3xl p-6 shadow-card">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs">🎉</div>
+                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs border border-purple-100">🎉</div>
                 <div>
                   <h3 class="text-sm font-bold text-slate-900">Recommended For You</h3>
                   <div class="text-[11px] text-slate-400">Matched to B.S. Computer Science</div>
                 </div>
               </div>
-              <button onclick="UniPulse.navigateTo('events')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800">View Events →</button>
+              <button onclick="UniPulse.navigateTo('events')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors">View Events →</button>
             </div>
   
             <div class="space-y-3" id="dashboard-events-list">
-              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div class="p-3.5 rounded-2xl bg-white/60 hover:bg-white/80 border border-white/80 backdrop-blur-sm flex items-center justify-between transition-all shadow-2xs">
                 <div>
                   <div class="text-xs font-bold text-slate-900">Campus AI & Coding Hackathon 2026</div>
                   <div class="text-[11px] text-slate-500">This Friday • Block 34 Innovation Lab</div>
@@ -1045,7 +1046,7 @@
                 </button>
               </div>
   
-              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div class="p-3.5 rounded-2xl bg-white/60 hover:bg-white/80 border border-white/80 backdrop-blur-sm flex items-center justify-between transition-all shadow-2xs">
                 <div>
                   <div class="text-xs font-bold text-slate-900">Autonomous Drone & Robotics Workshop</div>
                   <div class="text-[11px] text-slate-500">Saturday 2:00 PM • Robotics Arena</div>
@@ -1070,9 +1071,9 @@
     return `
       <div class="h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-6 animate-fadeIn pb-4">
         <!-- Left / Center: Conversational Chat Interface -->
-        <div class="flex-1 bg-white rounded-3xl border border-slate-200/80 shadow-card flex flex-col overflow-hidden">
+        <div class="flex-1 glass-card rounded-3xl shadow-card flex flex-col overflow-hidden">
           <!-- Chat Header -->
-          <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div class="p-4 border-b border-white/20 dark:border-white/10 flex items-center justify-between bg-white/20 dark:bg-slate-900/20 backdrop-blur-md">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-600/30">
                 🤖
@@ -1098,22 +1099,22 @@
                 AI
               </div>
               <div class="space-y-3">
-                <div class="p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed">
+                <div class="p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed shadow-xs">
                   Hello Alex! I am your UniPulse AI Campus Assistant. Ask me about quiet study desks, walking routes across buildings, lost belongings, or recommended hackathons.
                 </div>
   
                 <!-- Suggested starter prompts -->
                 <div class="flex flex-wrap gap-2 text-xs">
                   <button onclick="UniPulse.sendAssistantMessage('Where is the quietest study spot with power outlets right now?')"
-                          class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-700 font-medium transition-colors">
+                          class="px-3 py-1.5 rounded-xl glass-pill text-indigo-700 dark:text-indigo-300 font-medium transition-all">
                     📚 Quiet study desks right now
                   </button>
                   <button onclick="UniPulse.sendAssistantMessage('How do I walk from Block 34 to Sports Complex?')"
-                          class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-700 font-medium transition-colors">
+                          class="px-3 py-1.5 rounded-xl glass-pill text-indigo-700 dark:text-indigo-300 font-medium transition-all">
                     🗺️ Walking route: Block 34 to Sports
                   </button>
                   <button onclick="UniPulse.sendAssistantMessage('Check my lost Hydro Flask match status')"
-                          class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-700 font-medium transition-colors">
+                          class="px-3 py-1.5 rounded-xl glass-pill text-indigo-700 dark:text-indigo-300 font-medium transition-all">
                     🔍 Lost bottle match status
                   </button>
                 </div>
@@ -1122,11 +1123,11 @@
           </div>
   
           <!-- Chat Input Bar -->
-          <div class="p-4 border-t border-slate-100 bg-white">
+          <div class="p-4 border-t border-white/20 dark:border-white/10 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md">
             <form onsubmit="UniPulse.handleAssistantSubmit(event)" class="flex items-center gap-2">
               <input id="assistant-input" type="text"
                      placeholder="Ask anything about campus, study spaces, routes..."
-                     class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 bg-slate-50/50">
+                     class="flex-1 px-4 py-3 rounded-2xl glass-input text-sm">
               <button type="submit"
                       class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5">
                 <span>Send</span>
@@ -1137,16 +1138,16 @@
         </div>
   
         <!-- Right: Dynamic Synchronized Context Panel -->
-        <div id="right-context-panel" class="w-full lg:w-80 bg-white rounded-3xl border border-slate-200/80 shadow-card p-6 flex flex-col justify-between overflow-y-auto">
+        <div id="right-context-panel" class="w-full lg:w-80 glass-card rounded-3xl shadow-card p-6 flex flex-col justify-between overflow-y-auto">
           <!-- Default Context View -->
           <div>
-            <div class="flex items-center gap-2 pb-3 border-b border-slate-100 mb-4">
+            <div class="flex items-center gap-2 pb-3 border-b border-white/20 dark:border-white/10 mb-4">
               <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Right Context Panel</h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Right Context Panel</h4>
             </div>
   
             <div id="context-panel-content" class="space-y-4">
-              <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100">
+              <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/50 backdrop-blur-sm">
                 <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Proactive Sync</span>
                 <h5 class="text-sm font-bold text-slate-900 mt-1">Live Context Follows Chat</h5>
                 <p class="text-xs text-slate-600 mt-1 leading-relaxed">
@@ -1155,12 +1156,12 @@
               </div>
   
               <!-- Featured Quick Action: Library Level 3 -->
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+              <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/10 backdrop-blur-sm">
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-xs font-bold text-slate-900">Main Library — Level 3</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Silent Focus</span>
                 </div>
-                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden my-2">
+                <div class="w-full bg-slate-200/70 dark:bg-slate-700/60 h-2 rounded-full overflow-hidden my-2">
                   <div class="bg-indigo-600 h-2 rounded-full" style="width: 78%"></div>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-slate-500 mb-3">
@@ -1175,9 +1176,9 @@
             </div>
           </div>
   
-          <div class="pt-4 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+          <div class="pt-4 border-t border-white/20 dark:border-white/10 text-[11px] text-slate-400 flex items-center justify-between">
             <span>Synced with UniPulse Session</span>
-            <span class="font-mono text-indigo-600">ID: ${AppState.assistantSessionId.substring(0, 8)}</span>
+            <span class="font-mono text-indigo-600 font-semibold">ID: ${AppState.assistantSessionId.substring(0, 8)}</span>
           </div>
         </div>
       </div>
@@ -1200,20 +1201,20 @@
           </div>
   
           <!-- Quick Route Selector -->
-          <div class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200/80 shadow-2xs">
-            <div class="flex items-center gap-1.5 text-xs text-slate-600 font-semibold px-2">
+          <div class="glass-card p-2 rounded-2xl flex items-center gap-2">
+            <div class="flex items-center gap-1.5 text-xs text-slate-700 font-semibold px-2">
               <span>From:</span>
-              <select id="route-from-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
+              <select id="route-from-select" class="glass-input rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
                 <option value="b34">Block 34 (Engineering)</option>
                 <option value="lib">Main Library</option>
                 <option value="sc">Student Commons</option>
                 <option value="inn">Innovation Hub</option>
               </select>
             </div>
-            <span class="text-slate-300">→</span>
-            <div class="flex items-center gap-1.5 text-xs text-slate-600 font-semibold px-2">
+            <span class="text-slate-400">→</span>
+            <div class="flex items-center gap-1.5 text-xs text-slate-700 font-semibold px-2">
               <span>To:</span>
-              <select id="route-to-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
+              <select id="route-to-select" class="glass-input rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
                 <option value="sport" selected>Sports Complex</option>
                 <option value="lib">Main Library</option>
                 <option value="b34">Block 34</option>
@@ -1221,7 +1222,7 @@
               </select>
             </div>
             <button onclick="UniPulse.updateMapRoute()"
-                    class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs">
+                    class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-transform active:scale-95">
               Route
             </button>
           </div>
@@ -1230,7 +1231,7 @@
         <!-- Main Map Grid (SVG Map Canvas + Directory Details) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- SVG Vector Campus Canvas (2 cols) -->
-          <div class="lg:col-span-2 bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[480px]">
+          <div class="lg:col-span-2 bg-slate-900/95 backdrop-blur-xl rounded-3xl p-4 shadow-xl border border-white/10 relative overflow-hidden flex flex-col justify-between min-h-[480px]">
             <!-- Map Overlay HUD -->
             <div class="absolute top-6 left-6 z-10 flex items-center gap-3">
               <div class="px-3 py-1.5 rounded-full bg-slate-800/90 backdrop-blur-md border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2">
@@ -1330,13 +1331,13 @@
           <!-- Right Side: Building Directory & Step-by-Step Directions -->
           <div class="space-y-6">
             <!-- Active Building / Route Details Card -->
-            <div id="map-directory-details" class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+            <div id="map-directory-details" class="glass-card rounded-3xl p-6 shadow-card">
               <div class="flex items-center justify-between mb-4">
                 <div>
                   <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-indigo-100 text-indigo-700">Active Destination</span>
                   <h3 class="text-lg font-bold text-slate-900 mt-1">Sports & Recreation Complex</h3>
                 </div>
-                <div class="w-10 h-10 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-lg">
+                <div class="w-10 h-10 rounded-2xl bg-pink-500/10 text-pink-600 flex items-center justify-center font-bold text-lg border border-pink-500/20">
                   🏀
                 </div>
               </div>
@@ -1345,7 +1346,7 @@
                 Olympic swimming pool, indoor courts, climbing gym, and outdoor athletic track.
               </p>
   
-              <div class="my-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2 text-xs">
+              <div class="my-4 p-3 bg-white/40 dark:bg-slate-800/40 rounded-2xl border border-white/40 dark:border-white/5 space-y-2 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-slate-400 font-medium">Hours:</span>
                   <span class="font-bold text-slate-800">6:00 AM - 10:00 PM</span>
@@ -1409,7 +1410,7 @@
         </div>
   
         <!-- Flagship 91% AI Match Hero Callout Card -->
-        <div class="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="bg-gradient-to-r from-indigo-950/90 via-slate-900/90 to-indigo-900/90 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-white/20">
           <div class="flex items-start gap-4">
             <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md">
               <svg class="w-14 h-14" viewBox="0 0 36 36">
@@ -1442,16 +1443,16 @@
         <!-- Feed Controls: Filters & Search -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-            <button onclick="UniPulse.filterLostItems('all', this)" class="item-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <button onclick="UniPulse.filterLostItems('all', this)" class="item-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600/15 text-indigo-700 border border-indigo-600/30 backdrop-blur-md shadow-2xs">
               All Items
             </button>
-            <button onclick="UniPulse.filterLostItems('lost', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+            <button onclick="UniPulse.filterLostItems('lost', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
               Lost
             </button>
-            <button onclick="UniPulse.filterLostItems('found', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+            <button onclick="UniPulse.filterLostItems('found', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
               Found
             </button>
-            <button onclick="UniPulse.filterLostItems('matched', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+            <button onclick="UniPulse.filterLostItems('matched', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
               Matched (91%)
             </button>
           </div>
@@ -1485,7 +1486,7 @@
             <p class="text-xs sm:text-sm text-slate-500 mt-1">Real-time seat occupancy meters, acoustic noise atmosphere, and 45-min desk passes.</p>
           </div>
   
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold backdrop-blur-sm">
             <span class="w-2 h-2 rounded-full bg-emerald-500 beacon-pulse"></span>
             <span>Realtime Occupancy Channel Active</span>
           </div>
@@ -1493,19 +1494,19 @@
   
         <!-- Noise Atmosphere Filter Bar -->
         <div class="flex items-center gap-2 overflow-x-auto pb-1">
-          <button onclick="UniPulse.filterSpaces('all', this)" class="space-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <button onclick="UniPulse.filterSpaces('all', this)" class="space-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600/15 text-indigo-700 border border-indigo-600/30 backdrop-blur-md shadow-2xs">
             All Spaces
           </button>
-          <button onclick="UniPulse.filterSpaces('Silent Focus', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterSpaces('Silent Focus', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Silent Focus
           </button>
-          <button onclick="UniPulse.filterSpaces('Quiet', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterSpaces('Quiet', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Quiet Pods
           </button>
-          <button onclick="UniPulse.filterSpaces('Moderate', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterSpaces('Moderate', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Moderate
           </button>
-          <button onclick="UniPulse.filterSpaces('Collaborative', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterSpaces('Collaborative', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Collaborative Lounge
           </button>
         </div>
@@ -1537,19 +1538,19 @@
   
         <!-- Category Filter Tabs -->
         <div class="flex items-center gap-2 overflow-x-auto pb-1">
-          <button onclick="UniPulse.filterEvents('all', this)" class="event-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <button onclick="UniPulse.filterEvents('all', this)" class="event-filter-tab glass-pill active px-4 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400">
             All Events
           </button>
-          <button onclick="UniPulse.filterEvents('Tech', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterEvents('Tech', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
             Tech & AI
           </button>
-          <button onclick="UniPulse.filterEvents('Engineering', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterEvents('Engineering', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
             Engineering & Robotics
           </button>
-          <button onclick="UniPulse.filterEvents('Workshops', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterEvents('Workshops', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
             Workshops
           </button>
-          <button onclick="UniPulse.filterEvents('Cultural', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterEvents('Cultural', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
             Cultural & Social
           </button>
         </div>
@@ -1574,9 +1575,10 @@
     return `
       <div class="max-w-4xl mx-auto space-y-6 animate-fadeIn pb-12">
         <!-- Profile Header Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div class="flex items-center gap-5">
-            <img src="${u.avatar_url}" alt="Student Avatar" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-600 shadow-md">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
+          <div class="absolute -right-16 -top-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center gap-5 relative z-10">
+            <img src="${u.avatar_url}" alt="Student Avatar" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-md">
             <div>
               <div class="flex items-center gap-2">
                 <h2 class="text-2xl font-extrabold text-slate-900">${u.name}</h2>
@@ -1590,13 +1592,13 @@
           </div>
   
           <button onclick="UniPulse.toggleRole()"
-                  class="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors shadow-2xs">
+                  class="relative z-10 px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 transition-all shadow-2xs hover:border-indigo-300">
             Switch to ${u.role === 'admin' ? 'Student' : 'Admin'} Mode
           </button>
         </div>
   
         <!-- Academic Interests & Recommendation Personalization -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+        <div class="glass-card rounded-3xl p-6 shadow-card">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-sm font-bold text-slate-900">Personalized Academic Interests</h3>
@@ -1607,7 +1609,7 @@
   
           <div id="profile-interest-tags" class="flex flex-wrap gap-2 mb-4">
             ${(u.interests || []).map(tag => `
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50/80 border border-indigo-200 text-indigo-700 text-xs font-semibold backdrop-blur-xs">
                 <span>${tag}</span>
                 <button onclick="UniPulse.removeInterest('${tag}')" class="text-indigo-400 hover:text-indigo-800">×</button>
               </span>
@@ -1617,21 +1619,21 @@
           <!-- Add Tag Input -->
           <form onsubmit="UniPulse.handleAddInterest(event)" class="flex items-center gap-2 max-w-sm">
             <input id="new-interest-input" type="text" placeholder="Add interest (e.g. Design, Quantum)..."
-                   class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">Add</button>
+                   class="flex-1 px-3 py-2 rounded-xl glass-input text-xs focus:outline-none">
+            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 active:scale-95 transition-all">Add</button>
           </form>
         </div>
   
         <!-- Activity Timeline: Active Passes & Reports -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Active Passes -->
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+          <div class="glass-card rounded-3xl p-6 shadow-card">
             <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
               <span>🎟️</span>
               <span>Active Desk Passes</span>
             </h3>
             <div id="profile-active-passes" class="space-y-3">
-              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="p-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-white/60 dark:border-white/10">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-900">Main Library — Desk D-102</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Active</span>
@@ -1642,13 +1644,13 @@
           </div>
   
           <!-- Submitted Reports -->
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+          <div class="glass-card rounded-3xl p-6 shadow-card">
             <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
               <span>📦</span>
               <span>Your Campus Reports</span>
             </h3>
             <div id="profile-submitted-reports" class="space-y-3">
-              <div class="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/70">
+              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/30">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-900">Hydro Flask Navy Blue 32oz</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">91% Matched</span>
@@ -1683,14 +1685,14 @@
           </div>
   
           <button onclick="UniPulse.toggleRole()"
-                  class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs">
+                  class="px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 shadow-2xs hover:border-indigo-300">
             Return to Student View
           </button>
         </div>
   
         <!-- Campus KPI Highlights Grid -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+          <div class="glass-card glass-card-hover p-5 rounded-3xl">
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Students</div>
             <div id="admin-kpi-students" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">14,820</div>
             <div class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
@@ -1699,19 +1701,19 @@
             </div>
           </div>
   
-          <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+          <div class="glass-card glass-card-hover p-5 rounded-3xl">
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI Match Accuracy</div>
             <div id="admin-kpi-accuracy" class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1">94.2%</div>
             <div class="text-[11px] text-indigo-500 font-semibold mt-1">Computer vision & spatial</div>
           </div>
   
-          <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+          <div class="glass-card glass-card-hover p-5 rounded-3xl">
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Lost Reports</div>
             <div id="admin-kpi-reports" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">42</div>
             <div class="text-[11px] text-slate-500 font-medium mt-1">19 awaiting candidate pairs</div>
           </div>
   
-          <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+          <div class="glass-card glass-card-hover p-5 rounded-3xl">
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Resolved This Week</div>
             <div id="admin-kpi-resolved" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">89</div>
             <div class="text-[11px] text-emerald-600 font-semibold mt-1">Avg 3.4h resolution speed</div>
@@ -1721,7 +1723,7 @@
         <!-- Velocity Chart & Study Space Capacity Distribution -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Resolution Velocity SVG Chart (2 cols) -->
-          <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-card">
+          <div class="lg:col-span-2 glass-card p-6 rounded-3xl shadow-card">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="text-sm font-bold text-slate-900">Weekly Lost & Found Resolution Velocity</h3>
@@ -1734,7 +1736,7 @@
             </div>
   
             <!-- SVG Bar Chart -->
-            <div id="admin-velocity-chart" class="h-56 w-full flex items-end justify-between gap-4 pt-6 px-2 border-b border-slate-100">
+            <div id="admin-velocity-chart" class="h-56 w-full flex items-end justify-between gap-4 pt-6 px-2 border-b border-white/20 dark:border-white/10">
               ${[
                 { day: 'Mon', res: 14, rep: 18 },
                 { day: 'Tue', res: 19, rep: 21 },
@@ -1746,8 +1748,8 @@
               ].map(d => `
                 <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                   <div class="w-full flex items-end justify-center gap-1 h-full">
-                    <div class="w-3 sm:w-4 bg-slate-200 rounded-t-lg transition-all group-hover:bg-slate-300" style="height: ${d.rep * 3.4}px" title="${d.rep} Reported"></div>
-                    <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-700" style="height: ${d.res * 3.4}px" title="${d.res} Resolved"></div>
+                    <div class="w-3 sm:w-4 bg-slate-300/40 rounded-t-lg transition-all group-hover:bg-slate-300/60" style="height: ${d.rep * 3.4}px" title="${d.rep} Reported"></div>
+                    <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-500 shadow-sm" style="height: ${d.res * 3.4}px" title="${d.res} Resolved"></div>
                   </div>
                   <span class="text-[11px] font-bold text-slate-500">${d.day}</span>
                 </div>
@@ -1756,7 +1758,7 @@
           </div>
   
           <!-- Campus Space Capacity Distribution -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-card flex flex-col justify-between">
+          <div class="glass-card p-6 rounded-3xl shadow-card flex flex-col justify-between">
             <div>
               <h3 class="text-sm font-bold text-slate-900 mb-1">Space Atmosphere Load</h3>
               <p class="text-xs text-slate-400 mb-4">Real-time aggregate occupancy across zones</p>
@@ -1767,7 +1769,7 @@
                     <span class="text-slate-700">Silent Focus Floors</span>
                     <span class="text-indigo-600">78%</span>
                   </div>
-                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                     <div class="bg-emerald-500 h-2 rounded-full" style="width: 78%"></div>
                   </div>
                 </div>
@@ -1777,7 +1779,7 @@
                     <span class="text-slate-700">Quiet Pods</span>
                     <span class="text-indigo-600">52%</span>
                   </div>
-                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                     <div class="bg-blue-500 h-2 rounded-full" style="width: 52%"></div>
                   </div>
                 </div>
@@ -1787,7 +1789,7 @@
                     <span class="text-slate-700">Moderate Labs (Block 34)</span>
                     <span class="text-indigo-600">42%</span>
                   </div>
-                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                     <div class="bg-indigo-500 h-2 rounded-full" style="width: 42%"></div>
                   </div>
                 </div>
@@ -1797,22 +1799,22 @@
                     <span class="text-slate-700">Collaborative Lounges</span>
                     <span class="text-indigo-600">81%</span>
                   </div>
-                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                     <div class="bg-pink-500 h-2 rounded-full" style="width: 81%"></div>
                   </div>
                 </div>
               </div>
             </div>
   
-            <div class="pt-4 border-t border-slate-100 text-[11px] text-slate-400">
+            <div class="pt-4 border-t border-white/20 dark:border-white/10 text-[11px] text-slate-400">
               Data refreshed live from SQLite sensor feeds
             </div>
           </div>
         </div>
   
         <!-- Staff Audit & Verification Queue Table -->
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-card overflow-hidden">
-          <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div class="glass-card rounded-3xl shadow-card overflow-hidden">
+          <div class="p-6 border-b border-white/20 dark:border-white/10 flex items-center justify-between">
             <div>
               <h3 class="text-base font-bold text-slate-900">AI Match Verification & Audit Queue</h3>
               <p class="text-xs text-slate-500">Staff review required before releasing high-value items for student in-person pickup</p>
@@ -1824,7 +1826,7 @@
   
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-100">
+              <thead class="bg-white/20 dark:bg-slate-900/20 text-slate-400 uppercase text-[10px] font-bold border-b border-white/20 dark:border-white/10">
                 <tr>
                   <th class="py-3.5 px-6">Match ID & Candidate</th>
                   <th class="py-3.5 px-6">Confidence Score</th>
@@ -1833,7 +1835,7 @@
                   <th class="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody id="admin-audit-table-body" class="divide-y divide-slate-100 text-slate-700">
+              <tbody id="admin-audit-table-body" class="divide-y divide-white/20 dark:divide-white/10 text-slate-700">
                 <!-- Rendered dynamically by app.js from ApiClient.get('/admin/audit-queue') -->
                 <tr>
                   <td colspan="5" class="py-6 text-center text-slate-400">Loading audit queue...</td>
@@ -2054,7 +2056,7 @@
         const barColor = isHigh ? 'bg-amber-500' : isMed ? 'bg-indigo-600' : 'bg-emerald-500';
   
         return `
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between" id="space-card-${s.id}">
+          <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/80 shadow-card flex flex-col justify-between" id="space-card-${s.id}">
             <div>
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div>
@@ -2072,26 +2074,26 @@
                   <span class="text-slate-600">Seat Occupancy: <strong class="space-occupancy-count text-slate-900">${s.current_occupancy} / ${s.capacity}</strong></span>
                   <span class="space-occupancy-rate font-bold ${isHigh ? 'text-amber-600' : 'text-indigo-600'}">${rate}%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                  <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${rate}%"></div>
+                <div class="w-full bg-slate-200/50 h-2.5 rounded-full overflow-hidden border border-white/60">
+                  <div class="${barColor} h-2.5 rounded-full transition-all duration-500 shadow-xs" style="width: ${rate}%"></div>
                 </div>
               </div>
   
               <!-- Amenities -->
               <div class="flex flex-wrap gap-1.5 mb-4 text-[11px]">
-                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">⚡ Power at Every Desk</span>
-                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">📶 Fast Wi-Fi 6</span>
-                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">☀️ Natural Light</span>
+                <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">⚡ Power at Every Desk</span>
+                <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">📶 Fast Wi-Fi 6</span>
+                <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">☀️ Natural Light</span>
               </div>
             </div>
   
             <!-- Bottom CTA -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div class="pt-4 border-t border-white/60 flex items-center justify-between">
               <div class="text-xs text-slate-500">
                 <strong class="space-available-desks text-emerald-600 font-bold">${Math.max(0, s.capacity - s.current_occupancy)} Desks</strong> Available Now
               </div>
               <button onclick="UniPulse.openReserveModal('${s.id}', '${s.name}')"
-                      class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all">
+                      class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition-all">
                 Reserve Desk
               </button>
             </div>
@@ -2141,17 +2143,17 @@
         const isMatched = item.status === 'matched';
   
         return `
-          <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between">
+          <div class="glass-card glass-card-hover rounded-3xl p-5 border border-white/80 shadow-card flex flex-col justify-between">
             <div>
-              <div class="relative mb-3">
-                <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-2xl">
+              <div class="relative mb-3 overflow-hidden rounded-2xl">
+                <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-2xl transition-transform duration-300 hover:scale-105">
                 <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
-                  isLost ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                  isLost ? 'bg-amber-100/90 text-amber-800 border border-amber-200 backdrop-blur-sm' : 'bg-emerald-100/90 text-emerald-800 border border-emerald-200 backdrop-blur-sm'
                 }">
                   ${item.kind}
                 </span>
                 ${isMatched ? `
-                  <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-indigo-600 text-white shadow-md">
+                  <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-indigo-600/90 text-white shadow-md backdrop-blur-sm border border-indigo-400/30">
                     ${item.match_score ? `${Math.round(item.match_score)}% Match` : '91% Match'}
                   </span>
                 ` : ''}
@@ -2162,11 +2164,11 @@
               <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.description}</p>
             </div>
   
-            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span class="text-[11px] text-slate-400">${item.location_name || 'Main Library'}</span>
+            <div class="mt-4 pt-3 border-t border-white/60 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400 font-medium">${item.location_name || 'Main Library'}</span>
               ${isMatched ? `
                 <button onclick="UniPulse.openMatchAnalysisModal('${item.match_id || 'match-91'}')"
-                        class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                        class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
                   <span>View Match</span>
                   <span>→</span>
                 </button>
@@ -2323,7 +2325,7 @@
         const isRsvped = AppState.rsvps.has(ev.id);
   
         return `
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between">
+          <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-100">
@@ -2341,11 +2343,11 @@
               </div>
   
               <div class="mt-3 flex flex-wrap gap-1">
-                ${(ev.tags || []).map(t => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">#${t}</span>`).join('')}
+                ${(ev.tags || []).map(t => `<span class="px-2 py-0.5 rounded-md bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 text-slate-600 dark:text-slate-300 text-[10px] font-medium">#${t}</span>`).join('')}
               </div>
             </div>
   
-            <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div class="mt-5 pt-3 border-t border-white/20 dark:border-white/10 flex items-center justify-between">
               <span class="text-xs text-slate-500 font-medium">
                 <strong class="text-slate-800">${ev.attendees_count}</strong> students attending
               </span>
@@ -2384,9 +2386,9 @@
   
     filterEvents(cat, tab) {
       document.querySelectorAll('.event-filter-tab').forEach(t => {
-        t.className = 'event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200';
+        t.className = 'event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300';
       });
-      tab.className = 'event-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200';
+      tab.className = 'event-filter-tab glass-pill active px-4 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400';
   
       if (cat === 'all') {
         this.renderEventsFeed(AppState.events);
@@ -2527,7 +2529,7 @@
           AI
         </div>
         <div class="space-y-3 flex-1">
-          <div class="chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed flex items-center gap-2">
+          <div class="chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed flex items-center gap-2 shadow-xs">
             <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce"></span>
             <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.2s]"></span>
             <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.4s]"></span>
@@ -2549,7 +2551,7 @@
           AppState.assistantSessionId,
           (token) => {
             if (!streamedText) {
-              contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed';
+              contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed shadow-xs';
               contentEl.innerHTML = '';
             }
             streamedText += token;
@@ -2557,7 +2559,7 @@
             container.scrollTop = container.scrollHeight;
           },
           (completeRes) => {
-            contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed';
+            contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed shadow-xs';
             contentEl.innerText = completeRes.content;
             if (completeRes.cards && completeRes.cards.length > 0) {
               cardsEl.classList.remove('hidden');
@@ -2581,7 +2583,7 @@
       if (card.type === 'study_space') {
         const d = card.data;
         return `
-          <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+          <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-bold text-slate-900">${d.name}</span>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.noise_rating}</span>
@@ -2597,7 +2599,7 @@
       if (card.type === 'location') {
         const d = card.data;
         return `
-          <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+          <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-bold text-slate-900">${d.name}</span>
               <span class="text-[10px] font-bold text-indigo-600">${d.code}</span>
@@ -2613,7 +2615,7 @@
       if (card.type === 'match') {
         const d = card.data;
         return `
-          <div class="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 shadow-2xs">
+          <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 backdrop-blur-md border border-indigo-200/60 dark:border-indigo-800/40 shadow-xs">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-bold text-slate-900">${d.title}</span>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white">${d.confidence}% Match</span>
@@ -2629,7 +2631,7 @@
       if (card.type === 'event') {
         const d = card.data;
         return `
-          <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+          <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-bold text-slate-900">${d.title}</span>
               <span class="text-[10px] font-bold text-purple-600">${d.organizer || 'Campus'}</span>
@@ -2654,7 +2656,7 @@
         if (firstCard.type === 'study_space') {
           const d = firstCard.data;
           panel.innerHTML = `
-            <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+            <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
               <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • Study Desk</span>
               <h5 class="text-sm font-bold text-slate-900 mt-1">${d.name}</h5>
               <div class="my-2">
@@ -2662,7 +2664,7 @@
                   <span class="text-slate-500">Live Occupancy</span>
                   <span class="font-bold text-indigo-600">${d.occupancy}%</span>
                 </div>
-                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-slate-200/70 dark:bg-slate-700/60 h-2 rounded-full overflow-hidden">
                   <div class="bg-indigo-600 h-2 rounded-full" style="width: ${d.occupancy}%"></div>
                 </div>
               </div>
@@ -2676,7 +2678,7 @@
         } else if (firstCard.type === 'location') {
           const d = firstCard.data;
           panel.innerHTML = `
-            <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+            <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
               <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • Campus Location</span>
               <h5 class="text-sm font-bold text-slate-900 mt-1">${d.name} (${d.code || ''})</h5>
               <div class="my-2 text-xs text-slate-600">${d.open_hours || 'Open Daily'}</div>
@@ -2690,7 +2692,7 @@
         } else if (firstCard.type === 'match') {
           const d = firstCard.data;
           panel.innerHTML = `
-            <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+            <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
               <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • AI Match</span>
               <h5 class="text-sm font-bold text-slate-900 mt-1">${d.title}</h5>
               <div class="my-2 flex items-center justify-between text-xs">
@@ -2707,7 +2709,7 @@
         } else if (firstCard.type === 'event') {
           const d = firstCard.data;
           panel.innerHTML = `
-            <div class="p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
+            <div class="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/50 backdrop-blur-sm">
               <span class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">Active Context • Recommended Event</span>
               <h5 class="text-sm font-bold text-slate-900 mt-1">${d.title}</h5>
               <div class="my-2 text-xs text-slate-600">${d.date || ''} • ${d.location || ''}</div>
@@ -2818,7 +2820,7 @@
         }
   
         tbody.innerHTML = queue.map(m => `
-          <tr class="hover:bg-slate-50/80 transition-colors">
+          <tr class="hover:bg-white/30 dark:hover:bg-slate-800/30 transition-colors">
             <td class="py-4 px-6">
               <div class="font-bold text-slate-900">${m.lost_title}</div>
               <div class="text-[11px] text-slate-400">Found: ${m.found_title}</div>
@@ -2881,8 +2883,8 @@
           chartEl.innerHTML = kpis.resolution_velocity.map(d => `
             <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
               <div class="w-full flex items-end justify-center gap-1 h-full">
-                <div class="w-3 sm:w-4 bg-slate-200 rounded-t-lg transition-all group-hover:bg-slate-300" style="height: ${d.reported * 3.4}px" title="${d.reported} Reported"></div>
-                <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-700" style="height: ${d.resolved * 3.4}px" title="${d.resolved} Resolved"></div>
+                <div class="w-3 sm:w-4 bg-slate-300/40 rounded-t-lg transition-all group-hover:bg-slate-300/60" style="height: ${d.reported * 3.4}px" title="${d.reported} Reported"></div>
+                <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-500 shadow-sm" style="height: ${d.resolved * 3.4}px" title="${d.resolved} Resolved"></div>
               </div>
               <span class="text-[11px] font-bold text-slate-500">${d.day}</span>
             </div>
@@ -2899,7 +2901,7 @@
                 <span class="text-slate-700">Silent Focus Floors</span>
                 <span class="text-indigo-600">${cd.silent}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                 <div class="bg-emerald-500 h-2 rounded-full" style="width: ${cd.silent}%"></div>
               </div>
             </div>
@@ -2908,7 +2910,7 @@
                 <span class="text-slate-700">Quiet Pods</span>
                 <span class="text-indigo-600">${cd.quiet}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                 <div class="bg-blue-500 h-2 rounded-full" style="width: ${cd.quiet}%"></div>
               </div>
             </div>
@@ -2917,7 +2919,7 @@
                 <span class="text-slate-700">Moderate Labs (Block 34)</span>
                 <span class="text-indigo-600">${cd.moderate}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                 <div class="bg-indigo-500 h-2 rounded-full" style="width: ${cd.moderate}%"></div>
               </div>
             </div>
@@ -2926,7 +2928,7 @@
                 <span class="text-slate-700">Collaborative Lounges</span>
                 <span class="text-indigo-600">${cd.collaborative}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                 <div class="bg-pink-500 h-2 rounded-full" style="width: ${cd.collaborative}%"></div>
               </div>
             </div>
@@ -2949,7 +2951,7 @@
         if (passesEl) {
           if (data.reservations && data.reservations.length > 0) {
             passesEl.innerHTML = data.reservations.map(r => `
-              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="p-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-white/60 dark:border-white/10">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-900">${r.space_name} — Desk ${r.desk_number}</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase">${r.status}</span>
@@ -2967,7 +2969,7 @@
         if (reportsEl) {
           if (data.reports && data.reports.length > 0) {
             reportsEl.innerHTML = data.reports.map(rp => `
-              <div class="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/70">
+              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/30">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-900">${rp.title}</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${rp.status === 'matched' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-800'} uppercase">${rp.status}</span>
@@ -3042,7 +3044,7 @@
       }
   
       root.innerHTML = `
-        <div class="flex h-screen overflow-hidden bg-[#F8F9FA]">
+        <div class="flex h-screen overflow-hidden bg-transparent">
           ${renderSidebar()}
           <div class="flex-1 flex flex-col h-screen overflow-y-auto">
             ${renderHeader()}

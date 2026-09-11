@@ -18,14 +18,14 @@ export function renderAdmin() {
         </div>
 
         <button onclick="UniPulse.toggleRole()"
-                class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs">
+                class="px-4 py-2 rounded-xl glass-pill text-xs font-bold text-slate-700 shadow-2xs hover:border-indigo-300">
           Return to Student View
         </button>
       </div>
 
       <!-- Campus KPI Highlights Grid -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+        <div class="glass-card glass-card-hover p-5 rounded-3xl">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Students</div>
           <div id="admin-kpi-students" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">14,820</div>
           <div class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
@@ -34,19 +34,19 @@ export function renderAdmin() {
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+        <div class="glass-card glass-card-hover p-5 rounded-3xl">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI Match Accuracy</div>
           <div id="admin-kpi-accuracy" class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1">94.2%</div>
           <div class="text-[11px] text-indigo-500 font-semibold mt-1">Computer vision & spatial</div>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+        <div class="glass-card glass-card-hover p-5 rounded-3xl">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Lost Reports</div>
           <div id="admin-kpi-reports" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">42</div>
           <div class="text-[11px] text-slate-500 font-medium mt-1">19 awaiting candidate pairs</div>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-card">
+        <div class="glass-card glass-card-hover p-5 rounded-3xl">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Resolved This Week</div>
           <div id="admin-kpi-resolved" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">89</div>
           <div class="text-[11px] text-emerald-600 font-semibold mt-1">Avg 3.4h resolution speed</div>
@@ -56,7 +56,7 @@ export function renderAdmin() {
       <!-- Velocity Chart & Study Space Capacity Distribution -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Resolution Velocity SVG Chart (2 cols) -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-card">
+        <div class="lg:col-span-2 glass-card p-6 rounded-3xl shadow-card">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-sm font-bold text-slate-900">Weekly Lost & Found Resolution Velocity</h3>
@@ -69,7 +69,7 @@ export function renderAdmin() {
           </div>
 
           <!-- SVG Bar Chart -->
-          <div id="admin-velocity-chart" class="h-56 w-full flex items-end justify-between gap-4 pt-6 px-2 border-b border-slate-100">
+          <div id="admin-velocity-chart" class="h-56 w-full flex items-end justify-between gap-4 pt-6 px-2 border-b border-white/20 dark:border-white/10">
             ${[
               { day: 'Mon', res: 14, rep: 18 },
               { day: 'Tue', res: 19, rep: 21 },
@@ -81,8 +81,8 @@ export function renderAdmin() {
             ].map(d => `
               <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                 <div class="w-full flex items-end justify-center gap-1 h-full">
-                  <div class="w-3 sm:w-4 bg-slate-200 rounded-t-lg transition-all group-hover:bg-slate-300" style="height: ${d.rep * 3.4}px" title="${d.rep} Reported"></div>
-                  <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-700" style="height: ${d.res * 3.4}px" title="${d.res} Resolved"></div>
+                  <div class="w-3 sm:w-4 bg-slate-300/40 rounded-t-lg transition-all group-hover:bg-slate-300/60" style="height: ${d.rep * 3.4}px" title="${d.rep} Reported"></div>
+                  <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-500 shadow-sm" style="height: ${d.res * 3.4}px" title="${d.res} Resolved"></div>
                 </div>
                 <span class="text-[11px] font-bold text-slate-500">${d.day}</span>
               </div>
@@ -91,7 +91,7 @@ export function renderAdmin() {
         </div>
 
         <!-- Campus Space Capacity Distribution -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-card flex flex-col justify-between">
+        <div class="glass-card p-6 rounded-3xl shadow-card flex flex-col justify-between">
           <div>
             <h3 class="text-sm font-bold text-slate-900 mb-1">Space Atmosphere Load</h3>
             <p class="text-xs text-slate-400 mb-4">Real-time aggregate occupancy across zones</p>
@@ -102,7 +102,7 @@ export function renderAdmin() {
                   <span class="text-slate-700">Silent Focus Floors</span>
                   <span class="text-indigo-600">78%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                   <div class="bg-emerald-500 h-2 rounded-full" style="width: 78%"></div>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export function renderAdmin() {
                   <span class="text-slate-700">Quiet Pods</span>
                   <span class="text-indigo-600">52%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                   <div class="bg-blue-500 h-2 rounded-full" style="width: 52%"></div>
                 </div>
               </div>
@@ -122,7 +122,7 @@ export function renderAdmin() {
                   <span class="text-slate-700">Moderate Labs (Block 34)</span>
                   <span class="text-indigo-600">42%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                   <div class="bg-indigo-500 h-2 rounded-full" style="width: 42%"></div>
                 </div>
               </div>
@@ -132,22 +132,22 @@ export function renderAdmin() {
                   <span class="text-slate-700">Collaborative Lounges</span>
                   <span class="text-indigo-600">81%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
                   <div class="bg-pink-500 h-2 rounded-full" style="width: 81%"></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 text-[11px] text-slate-400">
+          <div class="pt-4 border-t border-white/20 dark:border-white/10 text-[11px] text-slate-400">
             Data refreshed live from SQLite sensor feeds
           </div>
         </div>
       </div>
 
       <!-- Staff Audit & Verification Queue Table -->
-      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-card overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div class="glass-card rounded-3xl shadow-card overflow-hidden">
+        <div class="p-6 border-b border-white/20 dark:border-white/10 flex items-center justify-between">
           <div>
             <h3 class="text-base font-bold text-slate-900">AI Match Verification & Audit Queue</h3>
             <p class="text-xs text-slate-500">Staff review required before releasing high-value items for student in-person pickup</p>
@@ -159,7 +159,7 @@ export function renderAdmin() {
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-100">
+            <thead class="bg-white/20 dark:bg-slate-900/20 text-slate-400 uppercase text-[10px] font-bold border-b border-white/20 dark:border-white/10">
               <tr>
                 <th class="py-3.5 px-6">Match ID & Candidate</th>
                 <th class="py-3.5 px-6">Confidence Score</th>
@@ -168,7 +168,7 @@ export function renderAdmin() {
                 <th class="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="admin-audit-table-body" class="divide-y divide-slate-100 text-slate-700">
+            <tbody id="admin-audit-table-body" class="divide-y divide-white/20 dark:divide-white/10 text-slate-700">
               <!-- Rendered dynamically by app.js from ApiClient.get('/admin/audit-queue') -->
               <tr>
                 <td colspan="5" class="py-6 text-center text-slate-400">Loading audit queue...</td>

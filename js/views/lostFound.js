@@ -25,7 +25,7 @@ export function renderLostFound() {
       </div>
 
       <!-- Flagship 91% AI Match Hero Callout Card -->
-      <div class="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="bg-gradient-to-r from-indigo-950/90 via-slate-900/90 to-indigo-900/90 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-white/20">
         <div class="flex items-start gap-4">
           <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md">
             <svg class="w-14 h-14" viewBox="0 0 36 36">
@@ -58,16 +58,16 @@ export function renderLostFound() {
       <!-- Feed Controls: Filters & Search -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          <button onclick="UniPulse.filterLostItems('all', this)" class="item-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <button onclick="UniPulse.filterLostItems('all', this)" class="item-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600/15 text-indigo-700 border border-indigo-600/30 backdrop-blur-md shadow-2xs">
             All Items
           </button>
-          <button onclick="UniPulse.filterLostItems('lost', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterLostItems('lost', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Lost
           </button>
-          <button onclick="UniPulse.filterLostItems('found', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterLostItems('found', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Found
           </button>
-          <button onclick="UniPulse.filterLostItems('matched', this)" class="item-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+          <button onclick="UniPulse.filterLostItems('matched', this)" class="item-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
             Matched (91%)
           </button>
         </div>

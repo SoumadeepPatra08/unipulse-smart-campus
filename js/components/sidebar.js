@@ -26,7 +26,7 @@ export function renderSidebar() {
   }
 
   return `
-    <aside class="w-64 flex-shrink-0 bg-white border-r border-slate-200/80 flex flex-col justify-between h-screen sticky top-0 z-30 select-none">
+    <aside class="w-64 flex-shrink-0 glass-sidebar flex flex-col justify-between h-screen sticky top-0 z-30 select-none">
       <!-- Top Brand Header -->
       <div class="p-6">
         <div class="flex items-center gap-3 cursor-pointer" onclick="UniPulse.navigateTo('dashboard')">
@@ -47,8 +47,8 @@ export function renderSidebar() {
               <button onclick="UniPulse.navigateTo('${item.id}')"
                 class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 group ${
                   isActive
-                    ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-indigo-600/10 text-indigo-700 shadow-xs border border-indigo-600/20 backdrop-blur-sm'
+                    : 'text-slate-600 hover:bg-white/60 hover:text-slate-900'
                 }">
                 <div class="flex items-center gap-3">
                   <span class="${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}">
@@ -72,10 +72,10 @@ export function renderSidebar() {
       </div>
 
       <!-- Bottom User Profile Card & Role Switcher -->
-      <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+      <div class="p-4 border-t border-white/60 bg-white/40 backdrop-blur-md">
         <!-- Role Switcher Button -->
         <button onclick="UniPulse.toggleRole()"
-                class="w-full mb-3 px-3 py-2 rounded-xl text-xs font-bold border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs flex items-center justify-between transition-colors">
+                class="w-full mb-3 px-3 py-2 rounded-xl text-xs font-bold border border-white/80 bg-white/70 hover:bg-white/90 text-slate-700 shadow-2xs flex items-center justify-between transition-all backdrop-blur-sm">
           <span class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full ${isAdmin ? 'bg-purple-500' : 'bg-emerald-500'}"></span>
             <span>Role: ${isAdmin ? 'Administrator' : 'Student'}</span>
@@ -83,7 +83,7 @@ export function renderSidebar() {
           <span class="text-[10px] text-indigo-600 underline">Switch</span>
         </button>
 
-        <div class="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+        <div class="flex items-center gap-3 p-2 rounded-xl bg-white/70 border border-white/80 shadow-2xs backdrop-blur-sm">
           <img src="${AppState.user.avatar_url}" alt="Profile" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
           <div class="flex-1 min-w-0">
             <div class="text-xs font-bold text-slate-900 truncate">${AppState.user.name}</div>

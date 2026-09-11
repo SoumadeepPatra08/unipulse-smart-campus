@@ -13,20 +13,20 @@ export function renderCampusMap() {
         </div>
 
         <!-- Quick Route Selector -->
-        <div class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <div class="flex items-center gap-1.5 text-xs text-slate-600 font-semibold px-2">
+        <div class="glass-card p-2 rounded-2xl flex items-center gap-2">
+          <div class="flex items-center gap-1.5 text-xs text-slate-700 font-semibold px-2">
             <span>From:</span>
-            <select id="route-from-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
+            <select id="route-from-select" class="glass-input rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
               <option value="b34">Block 34 (Engineering)</option>
               <option value="lib">Main Library</option>
               <option value="sc">Student Commons</option>
               <option value="inn">Innovation Hub</option>
             </select>
           </div>
-          <span class="text-slate-300">→</span>
-          <div class="flex items-center gap-1.5 text-xs text-slate-600 font-semibold px-2">
+          <span class="text-slate-400">→</span>
+          <div class="flex items-center gap-1.5 text-xs text-slate-700 font-semibold px-2">
             <span>To:</span>
-            <select id="route-to-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
+            <select id="route-to-select" class="glass-input rounded-lg px-2 py-1 text-xs focus:outline-none" onchange="UniPulse.updateMapRoute()">
               <option value="sport" selected>Sports Complex</option>
               <option value="lib">Main Library</option>
               <option value="b34">Block 34</option>
@@ -34,7 +34,7 @@ export function renderCampusMap() {
             </select>
           </div>
           <button onclick="UniPulse.updateMapRoute()"
-                  class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs">
+                  class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-transform active:scale-95">
             Route
           </button>
         </div>
@@ -43,7 +43,7 @@ export function renderCampusMap() {
       <!-- Main Map Grid (SVG Map Canvas + Directory Details) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- SVG Vector Campus Canvas (2 cols) -->
-        <div class="lg:col-span-2 bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[480px]">
+        <div class="lg:col-span-2 bg-slate-900/95 backdrop-blur-xl rounded-3xl p-4 shadow-xl border border-white/10 relative overflow-hidden flex flex-col justify-between min-h-[480px]">
           <!-- Map Overlay HUD -->
           <div class="absolute top-6 left-6 z-10 flex items-center gap-3">
             <div class="px-3 py-1.5 rounded-full bg-slate-800/90 backdrop-blur-md border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2">
@@ -143,13 +143,13 @@ export function renderCampusMap() {
         <!-- Right Side: Building Directory & Step-by-Step Directions -->
         <div class="space-y-6">
           <!-- Active Building / Route Details Card -->
-          <div id="map-directory-details" class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card">
+          <div id="map-directory-details" class="glass-card rounded-3xl p-6 shadow-card">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-indigo-100 text-indigo-700">Active Destination</span>
                 <h3 class="text-lg font-bold text-slate-900 mt-1">Sports & Recreation Complex</h3>
               </div>
-              <div class="w-10 h-10 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-lg">
+              <div class="w-10 h-10 rounded-2xl bg-pink-500/10 text-pink-600 flex items-center justify-center font-bold text-lg border border-pink-500/20">
                 🏀
               </div>
             </div>
@@ -158,7 +158,7 @@ export function renderCampusMap() {
               Olympic swimming pool, indoor courts, climbing gym, and outdoor athletic track.
             </p>
 
-            <div class="my-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2 text-xs">
+            <div class="my-4 p-3 bg-white/40 dark:bg-slate-800/40 rounded-2xl border border-white/40 dark:border-white/5 space-y-2 text-xs">
               <div class="flex items-center justify-between">
                 <span class="text-slate-400 font-medium">Hours:</span>
                 <span class="font-bold text-slate-800">6:00 AM - 10:00 PM</span>

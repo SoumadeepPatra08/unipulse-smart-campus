@@ -12,7 +12,7 @@ export function renderSpaces() {
           <p class="text-xs sm:text-sm text-slate-500 mt-1">Real-time seat occupancy meters, acoustic noise atmosphere, and 45-min desk passes.</p>
         </div>
 
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold backdrop-blur-sm">
           <span class="w-2 h-2 rounded-full bg-emerald-500 beacon-pulse"></span>
           <span>Realtime Occupancy Channel Active</span>
         </div>
@@ -20,19 +20,19 @@ export function renderSpaces() {
 
       <!-- Noise Atmosphere Filter Bar -->
       <div class="flex items-center gap-2 overflow-x-auto pb-1">
-        <button onclick="UniPulse.filterSpaces('all', this)" class="space-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+        <button onclick="UniPulse.filterSpaces('all', this)" class="space-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600/15 text-indigo-700 border border-indigo-600/30 backdrop-blur-md shadow-2xs">
           All Spaces
         </button>
-        <button onclick="UniPulse.filterSpaces('Silent Focus', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterSpaces('Silent Focus', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
           Silent Focus
         </button>
-        <button onclick="UniPulse.filterSpaces('Quiet', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterSpaces('Quiet', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
           Quiet Pods
         </button>
-        <button onclick="UniPulse.filterSpaces('Moderate', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterSpaces('Moderate', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
           Moderate
         </button>
-        <button onclick="UniPulse.filterSpaces('Collaborative', this)" class="space-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterSpaces('Collaborative', this)" class="space-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white/80 border border-white/80 transition-all">
           Collaborative Lounge
         </button>
       </div>

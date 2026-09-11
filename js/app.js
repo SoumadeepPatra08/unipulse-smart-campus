@@ -205,7 +205,7 @@ export const UniPulse = {
       const barColor = isHigh ? 'bg-amber-500' : isMed ? 'bg-indigo-600' : 'bg-emerald-500';
 
       return `
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between" id="space-card-${s.id}">
+        <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/80 shadow-card flex flex-col justify-between" id="space-card-${s.id}">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <div>
@@ -223,26 +223,26 @@ export const UniPulse = {
                 <span class="text-slate-600">Seat Occupancy: <strong class="space-occupancy-count text-slate-900">${s.current_occupancy} / ${s.capacity}</strong></span>
                 <span class="space-occupancy-rate font-bold ${isHigh ? 'text-amber-600' : 'text-indigo-600'}">${rate}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${rate}%"></div>
+              <div class="w-full bg-slate-200/50 h-2.5 rounded-full overflow-hidden border border-white/60">
+                <div class="${barColor} h-2.5 rounded-full transition-all duration-500 shadow-xs" style="width: ${rate}%"></div>
               </div>
             </div>
 
             <!-- Amenities -->
             <div class="flex flex-wrap gap-1.5 mb-4 text-[11px]">
-              <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">⚡ Power at Every Desk</span>
-              <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">📶 Fast Wi-Fi 6</span>
-              <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium">☀️ Natural Light</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">⚡ Power at Every Desk</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">📶 Fast Wi-Fi 6</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/60 border border-white/80 text-slate-600 font-medium">☀️ Natural Light</span>
             </div>
           </div>
 
           <!-- Bottom CTA -->
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="pt-4 border-t border-white/60 flex items-center justify-between">
             <div class="text-xs text-slate-500">
               <strong class="space-available-desks text-emerald-600 font-bold">${Math.max(0, s.capacity - s.current_occupancy)} Desks</strong> Available Now
             </div>
             <button onclick="UniPulse.openReserveModal('${s.id}', '${s.name}')"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all">
+                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition-all">
               Reserve Desk
             </button>
           </div>
@@ -292,17 +292,17 @@ export const UniPulse = {
       const isMatched = item.status === 'matched';
 
       return `
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between">
+        <div class="glass-card glass-card-hover rounded-3xl p-5 border border-white/80 shadow-card flex flex-col justify-between">
           <div>
-            <div class="relative mb-3">
-              <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-2xl">
+            <div class="relative mb-3 overflow-hidden rounded-2xl">
+              <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-2xl transition-transform duration-300 hover:scale-105">
               <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
-                isLost ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                isLost ? 'bg-amber-100/90 text-amber-800 border border-amber-200 backdrop-blur-sm' : 'bg-emerald-100/90 text-emerald-800 border border-emerald-200 backdrop-blur-sm'
               }">
                 ${item.kind}
               </span>
               ${isMatched ? `
-                <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-indigo-600 text-white shadow-md">
+                <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-indigo-600/90 text-white shadow-md backdrop-blur-sm border border-indigo-400/30">
                   ${item.match_score ? `${Math.round(item.match_score)}% Match` : '91% Match'}
                 </span>
               ` : ''}
@@ -313,11 +313,11 @@ export const UniPulse = {
             <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.description}</p>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span class="text-[11px] text-slate-400">${item.location_name || 'Main Library'}</span>
+          <div class="mt-4 pt-3 border-t border-white/60 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-medium">${item.location_name || 'Main Library'}</span>
             ${isMatched ? `
               <button onclick="UniPulse.openMatchAnalysisModal('${item.match_id || 'match-91'}')"
-                      class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                      class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
                 <span>View Match</span>
                 <span>→</span>
               </button>
@@ -474,7 +474,7 @@ export const UniPulse = {
       const isRsvped = AppState.rsvps.has(ev.id);
 
       return `
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card card-hover-fx flex flex-col justify-between">
+        <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-100">
@@ -492,11 +492,11 @@ export const UniPulse = {
             </div>
 
             <div class="mt-3 flex flex-wrap gap-1">
-              ${(ev.tags || []).map(t => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">#${t}</span>`).join('')}
+              ${(ev.tags || []).map(t => `<span class="px-2 py-0.5 rounded-md bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 text-slate-600 dark:text-slate-300 text-[10px] font-medium">#${t}</span>`).join('')}
             </div>
           </div>
 
-          <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <div class="mt-5 pt-3 border-t border-white/20 dark:border-white/10 flex items-center justify-between">
             <span class="text-xs text-slate-500 font-medium">
               <strong class="text-slate-800">${ev.attendees_count}</strong> students attending
             </span>
@@ -535,9 +535,9 @@ export const UniPulse = {
 
   filterEvents(cat, tab) {
     document.querySelectorAll('.event-filter-tab').forEach(t => {
-      t.className = 'event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200';
+      t.className = 'event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300';
     });
-    tab.className = 'event-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200';
+    tab.className = 'event-filter-tab glass-pill active px-4 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400';
 
     if (cat === 'all') {
       this.renderEventsFeed(AppState.events);
@@ -678,7 +678,7 @@ export const UniPulse = {
         AI
       </div>
       <div class="space-y-3 flex-1">
-        <div class="chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed flex items-center gap-2">
+        <div class="chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed flex items-center gap-2 shadow-xs">
           <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce"></span>
           <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.2s]"></span>
           <span class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.4s]"></span>
@@ -700,7 +700,7 @@ export const UniPulse = {
         AppState.assistantSessionId,
         (token) => {
           if (!streamedText) {
-            contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed';
+            contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed shadow-xs';
             contentEl.innerHTML = '';
           }
           streamedText += token;
@@ -708,7 +708,7 @@ export const UniPulse = {
           container.scrollTop = container.scrollHeight;
         },
         (completeRes) => {
-          contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 text-xs sm:text-sm leading-relaxed';
+          contentEl.className = 'chat-content p-4 rounded-2xl rounded-tl-none bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed shadow-xs';
           contentEl.innerText = completeRes.content;
           if (completeRes.cards && completeRes.cards.length > 0) {
             cardsEl.classList.remove('hidden');
@@ -732,7 +732,7 @@ export const UniPulse = {
     if (card.type === 'study_space') {
       const d = card.data;
       return `
-        <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+        <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-bold text-slate-900">${d.name}</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.noise_rating}</span>
@@ -748,7 +748,7 @@ export const UniPulse = {
     if (card.type === 'location') {
       const d = card.data;
       return `
-        <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+        <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-bold text-slate-900">${d.name}</span>
             <span class="text-[10px] font-bold text-indigo-600">${d.code}</span>
@@ -764,7 +764,7 @@ export const UniPulse = {
     if (card.type === 'match') {
       const d = card.data;
       return `
-        <div class="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 shadow-2xs">
+        <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 backdrop-blur-md border border-indigo-200/60 dark:border-indigo-800/40 shadow-xs">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-bold text-slate-900">${d.title}</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white">${d.confidence}% Match</span>
@@ -780,7 +780,7 @@ export const UniPulse = {
     if (card.type === 'event') {
       const d = card.data;
       return `
-        <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+        <div class="p-3.5 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xs">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-bold text-slate-900">${d.title}</span>
             <span class="text-[10px] font-bold text-purple-600">${d.organizer || 'Campus'}</span>
@@ -805,7 +805,7 @@ export const UniPulse = {
       if (firstCard.type === 'study_space') {
         const d = firstCard.data;
         panel.innerHTML = `
-          <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+          <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
             <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • Study Desk</span>
             <h5 class="text-sm font-bold text-slate-900 mt-1">${d.name}</h5>
             <div class="my-2">
@@ -813,7 +813,7 @@ export const UniPulse = {
                 <span class="text-slate-500">Live Occupancy</span>
                 <span class="font-bold text-indigo-600">${d.occupancy}%</span>
               </div>
-              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-slate-200/70 dark:bg-slate-700/60 h-2 rounded-full overflow-hidden">
                 <div class="bg-indigo-600 h-2 rounded-full" style="width: ${d.occupancy}%"></div>
               </div>
             </div>
@@ -827,7 +827,7 @@ export const UniPulse = {
       } else if (firstCard.type === 'location') {
         const d = firstCard.data;
         panel.innerHTML = `
-          <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+          <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
             <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • Campus Location</span>
             <h5 class="text-sm font-bold text-slate-900 mt-1">${d.name} (${d.code || ''})</h5>
             <div class="my-2 text-xs text-slate-600">${d.open_hours || 'Open Daily'}</div>
@@ -841,7 +841,7 @@ export const UniPulse = {
       } else if (firstCard.type === 'match') {
         const d = firstCard.data;
         panel.innerHTML = `
-          <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+          <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/50 backdrop-blur-sm">
             <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Active Context • AI Match</span>
             <h5 class="text-sm font-bold text-slate-900 mt-1">${d.title}</h5>
             <div class="my-2 flex items-center justify-between text-xs">
@@ -858,7 +858,7 @@ export const UniPulse = {
       } else if (firstCard.type === 'event') {
         const d = firstCard.data;
         panel.innerHTML = `
-          <div class="p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
+          <div class="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/50 backdrop-blur-sm">
             <span class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">Active Context • Recommended Event</span>
             <h5 class="text-sm font-bold text-slate-900 mt-1">${d.title}</h5>
             <div class="my-2 text-xs text-slate-600">${d.date || ''} • ${d.location || ''}</div>
@@ -969,7 +969,7 @@ export const UniPulse = {
       }
 
       tbody.innerHTML = queue.map(m => `
-        <tr class="hover:bg-slate-50/80 transition-colors">
+        <tr class="hover:bg-white/30 dark:hover:bg-slate-800/30 transition-colors">
           <td class="py-4 px-6">
             <div class="font-bold text-slate-900">${m.lost_title}</div>
             <div class="text-[11px] text-slate-400">Found: ${m.found_title}</div>
@@ -1032,8 +1032,8 @@ export const UniPulse = {
         chartEl.innerHTML = kpis.resolution_velocity.map(d => `
           <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
             <div class="w-full flex items-end justify-center gap-1 h-full">
-              <div class="w-3 sm:w-4 bg-slate-200 rounded-t-lg transition-all group-hover:bg-slate-300" style="height: ${d.reported * 3.4}px" title="${d.reported} Reported"></div>
-              <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-700" style="height: ${d.resolved * 3.4}px" title="${d.resolved} Resolved"></div>
+              <div class="w-3 sm:w-4 bg-slate-300/40 rounded-t-lg transition-all group-hover:bg-slate-300/60" style="height: ${d.reported * 3.4}px" title="${d.reported} Reported"></div>
+              <div class="w-3 sm:w-4 bg-indigo-600 rounded-t-lg transition-all group-hover:bg-indigo-500 shadow-sm" style="height: ${d.resolved * 3.4}px" title="${d.resolved} Resolved"></div>
             </div>
             <span class="text-[11px] font-bold text-slate-500">${d.day}</span>
           </div>
@@ -1050,7 +1050,7 @@ export const UniPulse = {
               <span class="text-slate-700">Silent Focus Floors</span>
               <span class="text-indigo-600">${cd.silent}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
               <div class="bg-emerald-500 h-2 rounded-full" style="width: ${cd.silent}%"></div>
             </div>
           </div>
@@ -1059,7 +1059,7 @@ export const UniPulse = {
               <span class="text-slate-700">Quiet Pods</span>
               <span class="text-indigo-600">${cd.quiet}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
               <div class="bg-blue-500 h-2 rounded-full" style="width: ${cd.quiet}%"></div>
             </div>
           </div>
@@ -1068,7 +1068,7 @@ export const UniPulse = {
               <span class="text-slate-700">Moderate Labs (Block 34)</span>
               <span class="text-indigo-600">${cd.moderate}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
               <div class="bg-indigo-500 h-2 rounded-full" style="width: ${cd.moderate}%"></div>
             </div>
           </div>
@@ -1077,7 +1077,7 @@ export const UniPulse = {
               <span class="text-slate-700">Collaborative Lounges</span>
               <span class="text-indigo-600">${cd.collaborative}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-white/40 dark:bg-slate-800/40 h-2 rounded-full overflow-hidden">
               <div class="bg-pink-500 h-2 rounded-full" style="width: ${cd.collaborative}%"></div>
             </div>
           </div>
@@ -1100,7 +1100,7 @@ export const UniPulse = {
       if (passesEl) {
         if (data.reservations && data.reservations.length > 0) {
           passesEl.innerHTML = data.reservations.map(r => `
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="p-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-white/60 dark:border-white/10">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-900">${r.space_name} — Desk ${r.desk_number}</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase">${r.status}</span>
@@ -1118,7 +1118,7 @@ export const UniPulse = {
       if (reportsEl) {
         if (data.reports && data.reports.length > 0) {
           reportsEl.innerHTML = data.reports.map(rp => `
-            <div class="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/70">
+            <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/30">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-900">${rp.title}</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${rp.status === 'matched' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-800'} uppercase">${rp.status}</span>
@@ -1193,7 +1193,7 @@ export const UniPulse = {
     }
 
     root.innerHTML = `
-      <div class="flex h-screen overflow-hidden bg-[#F8F9FA]">
+      <div class="flex h-screen overflow-hidden bg-transparent">
         ${renderSidebar()}
         <div class="flex-1 flex flex-col h-screen overflow-y-auto">
           ${renderHeader()}

@@ -15,19 +15,19 @@ export function renderEvents() {
 
       <!-- Category Filter Tabs -->
       <div class="flex items-center gap-2 overflow-x-auto pb-1">
-        <button onclick="UniPulse.filterEvents('all', this)" class="event-filter-tab active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+        <button onclick="UniPulse.filterEvents('all', this)" class="event-filter-tab glass-pill active px-4 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400">
           All Events
         </button>
-        <button onclick="UniPulse.filterEvents('Tech', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterEvents('Tech', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
           Tech & AI
         </button>
-        <button onclick="UniPulse.filterEvents('Engineering', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterEvents('Engineering', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
           Engineering & Robotics
         </button>
-        <button onclick="UniPulse.filterEvents('Workshops', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterEvents('Workshops', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
           Workshops
         </button>
-        <button onclick="UniPulse.filterEvents('Cultural', this)" class="event-filter-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200">
+        <button onclick="UniPulse.filterEvents('Cultural', this)" class="event-filter-tab glass-pill px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300">
           Cultural & Social
         </button>
       </div>

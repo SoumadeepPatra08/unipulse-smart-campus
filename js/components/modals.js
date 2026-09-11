@@ -45,13 +45,13 @@ export function openReportModal(kind = 'lost') {
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Item Title *</label>
             <input id="report-title" required type="text" placeholder="e.g. Hydro Flask Navy Blue 32oz, Lenovo ThinkPad Charger"
-              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              class="w-full px-4 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-              <select id="report-category" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              <select id="report-category" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
                 <option value="Bottles & Containers">Bottles & Containers</option>
                 <option value="Electronics">Electronics & Laptops</option>
                 <option value="Keys & Cards">Keys & Campus IDs</option>
@@ -61,7 +61,7 @@ export function openReportModal(kind = 'lost') {
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">Campus Location</label>
-              <select id="report-location" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              <select id="report-location" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none">
                 <option value="lib">Main Library</option>
                 <option value="b34">Block 34 (Engineering)</option>
                 <option value="sport">Sports Complex</option>
@@ -74,7 +74,7 @@ export function openReportModal(kind = 'lost') {
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Distinct Features / Description</label>
             <textarea id="report-description" rows="3" placeholder="Colors, stickers, scratches, exact room or desk number..."
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+              class="w-full px-4 py-2 rounded-xl glass-input text-sm focus:outline-none"></textarea>
           </div>
 
           <!-- Drag and Drop Image Intake -->
@@ -281,7 +281,7 @@ export function openReserveModal(spaceId, spaceName) {
         <form onsubmit="UniPulse.handleReserveSubmit(event, '${spaceId}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Select Desk Number</label>
-            <select id="reserve-desk-select" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 font-mono">
+            <select id="reserve-desk-select" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm focus:outline-none font-mono">
               <option value="D-102">Desk D-102 (Window / Dual Power)</option>
               <option value="D-104">Desk D-104 (Quiet Corner / Power)</option>
               <option value="D-109">Desk D-109 (Center Cubicle / Lamp)</option>
