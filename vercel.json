@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api",
+      "destination": "/api/index.py?__path__=/api"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py?__path__=/api/$1"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/api/index.py?__path__=/uploads/$1"
+    },
+    {
+      "source": "/((?!assets/|css/|js/|uploads/|favicon.ico|robots.txt|index.html).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

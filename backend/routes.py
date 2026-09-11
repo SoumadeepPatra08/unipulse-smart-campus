@@ -32,8 +32,18 @@ def get_auth_user(headers):
     return get_authenticated_user(headers)
 
 JWT_SECRET = os.environ.get("JWT_SECRET", "unipulse_super_secret_jwt_key_2026_dev_prod")
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+_BASE_UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads")
+_IS_SERVERLESS = os.environ.get("VERCEL") == "1" or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+if _IS_SERVERLESS or not os.access(os.path.dirname(_BASE_UPLOAD_DIR), os.W_OK):
+    import tempfile
+    UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "uploads")
+else:
+    UPLOAD_DIR = _BASE_UPLOAD_DIR
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception:
+    pass
 
 # Active realtime SSE client queues
 REALTIME_CLIENTS = []

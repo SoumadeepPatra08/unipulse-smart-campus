@@ -7,9 +7,25 @@ import os
 import sqlite3
 import json
 import uuid
+import tempfile
+import shutil
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "unipulse.db")
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_LOCAL_DB = os.path.join(_BASE_DIR, "unipulse.db")
+
+# Detect Vercel serverless environment or read-only filesystem
+_IS_SERVERLESS = os.environ.get("VERCEL") == "1" or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+if _IS_SERVERLESS or not os.access(_BASE_DIR, os.W_OK):
+    DB_PATH = os.path.join(tempfile.gettempdir(), "unipulse.db")
+    # If not in /tmp yet, copy existing repo database if present
+    if not os.path.exists(DB_PATH) and os.path.exists(_LOCAL_DB):
+        try:
+            shutil.copy2(_LOCAL_DB, DB_PATH)
+        except Exception:
+            pass
+else:
+    DB_PATH = _LOCAL_DB
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)

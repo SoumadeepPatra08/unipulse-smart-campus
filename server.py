@@ -32,7 +32,7 @@ from backend.routes import (
     handle_admin_kpis, handle_admin_audit_queue, handle_admin_verify,
     handle_get_events, handle_rsvp_event, handle_get_profile,
     handle_update_interests, handle_update_profile, handle_upload_avatar,
-    success_response, error_response
+    success_response, error_response, UPLOAD_DIR
 )
 from backend.assistant import stream_assistant_chunks
 import seed
@@ -51,7 +51,33 @@ def ensure_database_ready():
 
 class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=BASE_DIR, **kwargs)
+        kwargs.setdefault('directory', BASE_DIR)
+        super().__init__(*args, **kwargs)
+
+    def get_request_path(self):
+        parsed = urllib.parse.urlparse(self.path)
+        qs = urllib.parse.parse_qs(parsed.query)
+
+        # 1. Check if rewrite passed __path__ or path query parameter
+        if '__path__' in qs:
+            p = qs['__path__'][0]
+            return p if p.startswith('/') else f'/{p}'
+        if 'path' in qs and (parsed.path.endswith('index.py') or parsed.path == '/api'):
+            p = qs['path'][0]
+            return p if p.startswith('/') else f'/api/{p}'
+
+        # 2. Check Vercel / reverse proxy headers
+        matched = (
+            self.headers.get('x-matched-path') or
+            self.headers.get('x-vercel-matched-path') or
+            self.headers.get('x-original-uri') or
+            self.headers.get('x-forwarded-uri')
+        )
+        if matched and not matched.endswith('.py'):
+            return urllib.parse.urlparse(matched).path
+
+        # 3. Default to parsed.path
+        return parsed.path
 
     def handle(self):
         try:
@@ -96,6 +122,8 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Set-Cookie', cookie)
         self.end_headers()
         self.wfile.write(body)
+        self.wfile.flush()
+        return True
 
     # -------------------------------------------------------------------------
     # REST API Request Dispatcher
@@ -270,9 +298,15 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
     # HTTP Method Overrides
     # -------------------------------------------------------------------------
     def do_GET(self):
+        resolved_path = self.get_request_path()
         parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
         query_params = urllib.parse.parse_qs(parsed.query)
+        # Clean internal routing params if present
+        query_params.pop('__path__', None)
+        if parsed.path.endswith('index.py'):
+            query_params.pop('path', None)
+
+        path = resolved_path
 
         # Realtime Server-Sent Events (SSE) stream for Study Spaces
         if path in ("/api/realtime/study-spaces", "/realtime/study-spaces"):
@@ -307,13 +341,42 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # Check API routes
-        if path.startswith("/api/") or path in ("/search", "/locations", "/route", "/study-spaces", "/items", "/events", "/profile"):
+        if path == "/api" or path.startswith("/api/") or path in ("/search", "/locations", "/route", "/study-spaces", "/items", "/events", "/profile"):
             handled = self.dispatch_api_get(path, query_params)
             if handled is not None:
                 return
+            return self.send_json(error_response(f"API endpoint '{path}' not found.", 404), 404)
+
+        # Uploaded file serving (supports both local uploads/ and /tmp/uploads on Vercel)
+        if path.startswith("/uploads/"):
+            filename = os.path.basename(path)
+            candidate_dirs = [UPLOAD_DIR, os.path.join(BASE_DIR, "uploads")]
+            target_file = None
+            for d in candidate_dirs:
+                cand = os.path.join(d, filename)
+                if os.path.isfile(cand):
+                    target_file = cand
+                    break
+            if target_file:
+                import mimetypes
+                content_type, _ = mimetypes.guess_type(target_file)
+                content_type = content_type or "application/octet-stream"
+                try:
+                    with open(target_file, "rb") as f:
+                        data = f.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', content_type)
+                    self.send_header('Content-Length', str(len(data)))
+                    self.send_header('Cache-Control', 'public, max-age=86400')
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+                except Exception:
+                    pass
+            return self.send_json(error_response("Uploaded file not found", 404), 404)
 
         # Static File Serving (with SPA routing fallback to index.html)
-        url_path = parsed.path
+        url_path = resolved_path
         clean_file_path = url_path.lstrip("/\\")
         file_path = os.path.join(BASE_DIR, clean_file_path)
 
@@ -325,8 +388,7 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
             return super().do_GET()
 
     def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
+        path = self.get_request_path()
         body = self.read_json_body()
 
         handled = self.dispatch_api_post(path, body)
@@ -336,8 +398,7 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_json(error_response(f"Endpoint {path} not found", 404), 404)
 
     def do_PUT(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
+        path = self.get_request_path()
         body = self.read_json_body()
 
         clean_path = path[4:] if path.startswith("/api") else path
