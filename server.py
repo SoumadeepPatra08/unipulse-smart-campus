@@ -31,7 +31,8 @@ from backend.routes import (
     handle_get_route, handle_get_study_spaces, handle_reserve_study_space,
     handle_admin_kpis, handle_admin_audit_queue, handle_admin_verify,
     handle_get_events, handle_rsvp_event, handle_get_profile,
-    handle_update_interests, success_response, error_response
+    handle_update_interests, handle_update_profile, handle_upload_avatar,
+    success_response, error_response
 )
 from backend.assistant import stream_assistant_chunks
 import seed
@@ -246,6 +247,10 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
         if match_verify:
             return self.send_json(handle_admin_verify(match_verify.group(1), body, self.headers))
 
+        # Profile avatar upload
+        if clean_path in ("/profile/avatar", "/user/avatar"):
+            return self.send_json(handle_upload_avatar(body, self.headers))
+
         # File upload simulation
         if clean_path == "/upload":
             img_data = body.get("image_base64", "")
@@ -336,6 +341,9 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
         body = self.read_json_body()
 
         clean_path = path[4:] if path.startswith("/api") else path
+        if clean_path in ("/profile", "/user/profile"):
+            return self.send_json(handle_update_profile(body, self.headers))
+
         if clean_path == "/profile/interests":
             return self.send_json(handle_update_interests(body, self.headers))
 
@@ -349,6 +357,12 @@ class UniPulseRequestHandler(http.server.SimpleHTTPRequestHandler):
             return 'text/css'
         if clean.endswith('.svg'):
             return 'image/svg+xml'
+        if clean.endswith('.webp'):
+            return 'image/webp'
+        if clean.endswith('.png'):
+            return 'image/png'
+        if clean.endswith('.jpg') or clean.endswith('.jpeg'):
+            return 'image/jpeg'
         if clean.endswith('.json'):
             return 'application/json'
         return super().guess_type(clean)

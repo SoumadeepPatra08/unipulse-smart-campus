@@ -893,6 +893,145 @@
     `;
   }
 
+  // --- Source: js/components/avatarPicker.js ---
+  // =========================================================================
+  // UniPulse Avatar Picker & Image Crop/Preview Component
+  // Supports 16 diverse built-in vector avatars + interactive HTML5 Canvas cropper
+  // =========================================================================
+  
+  const BUILTIN_AVATARS = [
+    { id: 'avatar-01', name: 'Alex', role: 'Tech & Code', url: '/assets/avatars/avatar-01.svg', tag: 'Engineering' },
+    { id: 'avatar-02', name: 'Sarah', role: 'Research & Scholar', url: '/assets/avatars/avatar-02.svg', tag: 'Science' },
+    { id: 'avatar-03', name: 'Jordan', role: 'Design & Media', url: '/assets/avatars/avatar-03.svg', tag: 'Design' },
+    { id: 'avatar-04', name: 'Maya', role: 'Bio & Health', url: '/assets/avatars/avatar-04.svg', tag: 'Medicine' },
+    { id: 'avatar-05', name: 'Liam', role: 'Robotics & AI', url: '/assets/avatars/avatar-05.svg', tag: 'Robotics' },
+    { id: 'avatar-06', name: 'Chloe', role: 'Arts & Literature', url: '/assets/avatars/avatar-06.svg', tag: 'Humanities' },
+    { id: 'avatar-07', name: 'Ethan', role: 'Engineering', url: '/assets/avatars/avatar-07.svg', tag: 'Mechanical' },
+    { id: 'avatar-08', name: 'Zara', role: 'Data & Analytics', url: '/assets/avatars/avatar-08.svg', tag: 'Data Science' },
+    { id: 'avatar-09', name: 'Noah', role: 'Athletics & Sports', url: '/assets/avatars/avatar-09.svg', tag: 'Athletics' },
+    { id: 'avatar-10', name: 'Emma', role: 'Math & Physics', url: '/assets/avatars/avatar-10.svg', tag: 'Mathematics' },
+    { id: 'avatar-11', name: 'Leo', role: 'Campus Operations', url: '/assets/avatars/avatar-11.svg', tag: 'Operations' },
+    { id: 'avatar-12', name: 'Aria', role: 'Music & Audio', url: '/assets/avatars/avatar-12.svg', tag: 'Music' },
+    { id: 'avatar-13', name: 'Kai', role: 'Cybersecurity', url: '/assets/avatars/avatar-13.svg', tag: 'Security' },
+    { id: 'avatar-14', name: 'Sora', role: 'Eco & Sustainability', url: '/assets/avatars/avatar-14.svg', tag: 'Ecology' },
+    { id: 'avatar-15', name: 'Ravi', role: 'Astrophysics', url: '/assets/avatars/avatar-15.svg', tag: 'Astronomy' },
+    { id: 'avatar-16', name: 'Elena', role: 'Business & Venture', url: '/assets/avatars/avatar-16.svg', tag: 'Business' }
+  ];
+  
+  function renderAvatarPickerGrid(currentAvatarUrl) {
+    return `
+      <div class="grid grid-cols-4 sm:grid-cols-8 gap-3">
+        ${BUILTIN_AVATARS.map(avatar => {
+          const isSelected = currentAvatarUrl === avatar.url;
+          return `
+            <button type="button"
+                    onclick="UniPulse.selectBuiltInAvatar('${avatar.url}')"
+                    class="group relative flex flex-col items-center p-2 rounded-2xl transition-all duration-200 border text-center ${
+                      isSelected
+                        ? 'bg-indigo-600/10 border-indigo-600 shadow-md ring-2 ring-indigo-500/30'
+                        : 'bg-white/60 hover:bg-white/90 border-white/80 hover:border-indigo-300 shadow-2xs hover:scale-105'
+                    }"
+                    title="${avatar.name} — ${avatar.role}">
+              <div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs">
+                <img src="${avatar.url}" alt="${avatar.name}" class="w-full h-full object-cover">
+                ${isSelected ? `
+                  <div class="absolute inset-0 bg-indigo-600/30 backdrop-blur-2xs flex items-center justify-center">
+                    <div class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                      ✓
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+              <span class="mt-1.5 text-[10px] font-bold text-slate-700 truncate w-full group-hover:text-indigo-600">
+                ${avatar.name.split(' ')[0]}
+              </span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+  
+  function renderCropModal() {
+    return `
+      <div id="crop-modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
+        <div class="glass-modal rounded-3xl p-6 max-w-lg w-full shadow-2xl relative overflow-hidden border border-white/80">
+          <!-- Header -->
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200/60 mb-5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                ✂️
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Crop & Adjust Profile Picture</h3>
+                <p class="text-[11px] text-slate-500">Drag to reposition, slider to zoom</p>
+              </div>
+            </div>
+            <button onclick="UniPulse.closeCropModal()" class="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
+              ✕
+            </button>
+          </div>
+  
+          <!-- Canvas Area & Preview Side-by-Side -->
+          <div class="flex flex-col sm:flex-row items-center gap-6 justify-center my-2">
+            <!-- Crop Canvas -->
+            <div class="relative w-64 h-64 rounded-2xl overflow-hidden border border-slate-300 shadow-inner bg-slate-900 flex items-center justify-center select-none">
+              <canvas id="avatar-crop-canvas" width="256" height="256" class="cursor-move"></canvas>
+              <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div class="w-48 h-48 rounded-full border-2 border-dashed border-white/80 shadow-2xl"></div>
+              </div>
+            </div>
+  
+            <!-- Live Circular Preview -->
+            <div class="flex flex-col items-center text-center">
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Live Preview</div>
+              <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg p-0.5 bg-white">
+                <canvas id="avatar-crop-preview" width="96" height="96" class="w-full h-full rounded-full"></canvas>
+              </div>
+              <span class="text-[10px] text-slate-400 mt-2 font-medium">1:1 Circular Avatar</span>
+            </div>
+          </div>
+  
+          <!-- Controls: Zoom Slider -->
+          <div class="mt-5 px-2">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-600 mb-1.5">
+              <span>Zoom</span>
+              <span id="crop-zoom-label" class="font-mono text-indigo-600 font-bold">1.0x</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-400">🔍 -</span>
+              <input id="crop-zoom-slider"
+                     type="range"
+                     min="1"
+                     max="3"
+                     step="0.05"
+                     value="1"
+                     oninput="UniPulse.updateCropZoom(this.value)"
+                     class="flex-1 accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+              <span class="text-xs text-slate-400">+ 🔍</span>
+            </div>
+          </div>
+  
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-200/60">
+            <button type="button"
+                    onclick="UniPulse.closeCropModal()"
+                    class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all">
+              Cancel
+            </button>
+            <button id="save-crop-btn"
+                    type="button"
+                    onclick="UniPulse.applyAndUploadCroppedAvatar()"
+                    class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition-all flex items-center gap-2">
+              <span>Save & Apply Avatar</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // --- Source: js/views/login.js ---
   // =========================================================================
   // UniPulse Authentication View: Responsive Glassmorphic Sign In & Registration
@@ -1098,11 +1237,17 @@
       <div class="space-y-6 animate-fadeIn pb-12">
         <!-- Top Welcome Greeting -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Welcome back, <span class="text-indigo-600">${AppState.user.name.split(' ')[0]}</span> 👋
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">Here is what is happening across your campus right now.</p>
+          <div class="flex items-center gap-3.5">
+            <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')" title="View profile settings">
+              <img src="${AppState.user?.avatar_url || '/assets/avatars/avatar-01.svg'}" alt="User Avatar"
+                   class="w-12 h-12 rounded-2xl object-cover border border-slate-200 ring-2 ring-indigo-100 hover:ring-indigo-300 transition-all shadow-sm">
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Welcome back, <span class="text-indigo-600">${AppState.user?.name ? AppState.user.name.split(' ')[0] : 'Student'}</span> 👋
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Here is what is happening across your campus right now.</p>
+            </div>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="UniPulse.openReportModal('lost')"
@@ -1786,7 +1931,10 @@
   // --- Source: js/views/profile.js ---
   // =========================================================================
   // UniPulse Student Profile & Preferences View
+  // Supports Profile Customization, Display Name Editing, Avatar Upload & Built-In Picker
   // =========================================================================
+  
+  
   
   function renderProfile() {
     const u = AppState.user || {
@@ -1797,7 +1945,7 @@
       student_id: 'CS-2027-0000',
       email: 'student@campus.edu',
       interests: [],
-      avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+      avatar_url: '/assets/avatars/avatar-01.svg'
     };
   
     return `
@@ -1806,16 +1954,32 @@
         <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
           <div class="absolute -right-16 -top-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
           <div class="flex items-center gap-5 relative z-10">
-            <img src="${u.avatar_url}" alt="Student Avatar" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-md">
+            <div class="relative group">
+              <img id="profile-header-avatar" src="${u.avatar_url}" alt="${u.name}"
+                   class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-md transition-transform group-hover:scale-105">
+              <button type="button"
+                      onclick="document.getElementById('avatar-file-input').click()"
+                      title="Upload new picture"
+                      class="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs shadow-md hover:bg-indigo-700 transition-all">
+                📷
+              </button>
+            </div>
             <div>
               <div class="flex items-center gap-2">
-                <h2 class="text-2xl font-extrabold text-slate-900">${u.name}</h2>
+                <h2 id="profile-display-name-header" class="text-2xl font-extrabold text-slate-900">${u.name}</h2>
                 <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 uppercase">
                   ${u.role}
                 </span>
               </div>
               <p class="text-sm font-semibold text-slate-600 mt-0.5">${u.major || 'Undergraduate'} • Class of ${u.grad_year || "'27"}</p>
-              <p class="text-xs text-slate-400 mt-1">Student ID: <span class="font-mono font-bold text-slate-700">${u.student_id || 'N/A'}</span> • ${u.email}</p>
+              <div class="flex items-center gap-2 mt-1 text-xs text-slate-400 flex-wrap">
+                <span>Student ID: <strong class="font-mono text-slate-700 font-bold">${u.student_id || 'N/A'}</strong></span>
+                <span>•</span>
+                <span class="flex items-center gap-1 text-slate-600">
+                  <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>${u.email}</span>
+                </span>
+              </div>
             </div>
           </div>
   
@@ -1832,6 +1996,106 @@
           </div>
         </div>
   
+        <!-- Profile Customization & Identity Settings -->
+        <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-white/60">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Profile Customization & Settings</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Customize your display name, upload custom photos, or select a built-in avatar</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Identity Settings
+            </span>
+          </div>
+  
+          <!-- Alert Notification for Settings Updates -->
+          <div id="profile-alert" class="hidden p-3.5 rounded-2xl text-xs font-medium flex items-center gap-2.5 transition-all">
+            <span id="profile-alert-icon"></span>
+            <span id="profile-alert-msg" class="flex-1"></span>
+          </div>
+  
+          <!-- Section 1: Display Name & Email -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div>
+              <form onsubmit="UniPulse.handleUpdateDisplayName(event)" class="space-y-2">
+                <label for="profile-name-input" class="block text-xs font-bold text-slate-700">
+                  Display Name <span class="text-rose-500">*</span>
+                </label>
+                <div class="flex items-center gap-2">
+                  <input id="profile-name-input"
+                         type="text"
+                         value="${u.name}"
+                         placeholder="Your full name"
+                         class="flex-1 px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm focus:outline-none transition-all">
+                  <button id="save-name-btn"
+                          type="submit"
+                          class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition-all whitespace-nowrap">
+                    Save Name
+                  </button>
+                </div>
+                <div id="profile-name-error" class="text-[11px] text-rose-500 font-medium hidden"></div>
+              </form>
+            </div>
+  
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-2">
+                Campus Email Address
+              </label>
+              <div class="px-4 py-2.5 rounded-2xl bg-slate-100/70 border border-slate-200/80 text-xs text-slate-500 flex items-center justify-between">
+                <span class="font-mono">${u.email}</span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  ✓ Verified
+                </span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Managed by campus identity provider</p>
+            </div>
+          </div>
+  
+          <!-- Section 2: Avatar Customization -->
+          <div class="pt-6 border-t border-white/60 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Profile Picture</h4>
+                <p class="text-xs text-slate-500">Upload a custom photo (JPG, PNG, WebP up to 5 MB) or pick a diverse built-in avatar</p>
+              </div>
+  
+              <!-- Upload & Revert Buttons -->
+              <div class="flex items-center gap-2">
+                <!-- Hidden File Input -->
+                <input id="avatar-file-input"
+                       type="file"
+                       accept="image/jpeg,image/png,image/webp"
+                       onchange="UniPulse.handleAvatarFileSelected(event)"
+                       class="hidden">
+  
+                <button type="button"
+                        onclick="document.getElementById('avatar-file-input').click()"
+                        class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  <span>Upload Photo</span>
+                </button>
+  
+                <button type="button"
+                        onclick="UniPulse.handleRevertAvatar()"
+                        title="Revert to built-in avatar"
+                        class="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition-all flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <span>Revert to Built-in</span>
+                </button>
+              </div>
+            </div>
+  
+            <!-- Built-In Avatar Gallery (16 Avatars) -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                <span>Choose from 16 Built-in Personas:</span>
+                <span class="text-indigo-600 font-bold">1-Click Instant Apply</span>
+              </div>
+              ${renderAvatarPickerGrid(u.avatar_url)}
+            </div>
+          </div>
+        </div>
+  
         <!-- Academic Interests & Recommendation Personalization -->
         <div class="glass-card rounded-3xl p-6 shadow-card">
           <div class="flex items-center justify-between mb-4">
@@ -1839,7 +2103,7 @@
               <h3 class="text-sm font-bold text-slate-900">Personalized Academic Interests</h3>
               <p class="text-xs text-slate-500">Powers your AI assistant and personalized event recommendations</p>
             </div>
-            <span class="text-xs text-indigo-600 font-semibold">4 Active Tags</span>
+            <span class="text-xs text-indigo-600 font-semibold">${(u.interests || []).length} Active Tags</span>
           </div>
   
           <div id="profile-interest-tags" class="flex flex-wrap gap-2 mb-4">
@@ -3525,6 +3789,294 @@
         this.render();
       } catch (err) {
         showToast('Failed to remove interest', 'error');
+      }
+    },
+  
+    // -----------------------------------------------------------------------
+    // Profile Customization & Avatar Cropper
+    // -----------------------------------------------------------------------
+    async handleUpdateDisplayName(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('profile-name-input');
+      const errEl = document.getElementById('profile-name-error');
+      const btn = document.getElementById('save-name-btn');
+      if (!input) return;
+  
+      const newName = input.value.trim();
+      if (errEl) {
+        errEl.innerText = '';
+        errEl.classList.add('hidden');
+      }
+  
+      if (!newName || newName.length < 2) {
+        if (errEl) {
+          errEl.innerText = 'Display name must be at least 2 characters long.';
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+      if (newName.length > 60) {
+        if (errEl) {
+          errEl.innerText = 'Display name cannot exceed 60 characters.';
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+  
+      const origText = btn ? btn.innerText : 'Save Name';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Saving...';
+      }
+  
+      try {
+        const updated = await ApiClient.put('/profile', { name: newName });
+        AppState.user = updated;
+        showToast(`Display name updated to "${updated.name}"`, 'success');
+        this.render();
+      } catch (err) {
+        showToast(err.message || 'Failed to update display name', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = origText;
+        }
+      }
+    },
+  
+    async selectBuiltInAvatar(avatarUrl) {
+      try {
+        const updated = await ApiClient.put('/profile', { avatar_url: avatarUrl });
+        AppState.user = updated;
+        showToast('Profile avatar updated!', 'success');
+        this.render();
+      } catch (err) {
+        showToast(err.message || 'Failed to update avatar', 'error');
+      }
+    },
+  
+    async handleRevertAvatar() {
+      const defaultAvatar = '/assets/avatars/avatar-01.svg';
+      try {
+        const updated = await ApiClient.put('/profile', { avatar_url: defaultAvatar });
+        AppState.user = updated;
+        showToast('Reverted to built-in avatar', 'info');
+        this.render();
+      } catch (err) {
+        showToast(err.message || 'Failed to revert avatar', 'error');
+      }
+    },
+  
+    handleAvatarFileSelected(e) {
+      const file = e.target && e.target.files && e.target.files[0];
+      if (!file) return;
+  
+      e.target.value = '';
+  
+      // Validate size: max 5 MB
+      const MAX_SIZE = 5 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        showToast('File size exceeds 5MB limit. Please choose a smaller image.', 'error');
+        return;
+      }
+  
+      // Validate type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        showToast('Unsupported file type. Please upload a JPG, PNG, or WebP image.', 'error');
+        return;
+      }
+  
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          this.openCropModal(img);
+        };
+        img.onerror = () => {
+          showToast('Failed to load image file.', 'error');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+  
+    openCropModal(img) {
+      const modalRoot = document.getElementById('modal-root');
+      if (!modalRoot) return;
+      modalRoot.innerHTML = renderCropModal();
+  
+      this._cropState = {
+        img: img,
+        scale: 1.0,
+        baseScale: 1.0,
+        panX: 0,
+        panY: 0,
+        isDragging: false,
+        startX: 0,
+        startY: 0
+      };
+  
+      const minDim = Math.min(img.width, img.height);
+      this._cropState.baseScale = 256 / minDim;
+  
+      this.initCropCanvas();
+    },
+  
+    closeCropModal() {
+      const modalRoot = document.getElementById('modal-root');
+      if (modalRoot) modalRoot.innerHTML = '';
+      this._cropState = null;
+    },
+  
+    updateCropZoom(val) {
+      if (!this._cropState) return;
+      this._cropState.scale = parseFloat(val);
+      const label = document.getElementById('crop-zoom-label');
+      if (label) label.innerText = `${parseFloat(val).toFixed(2)}x`;
+      this.drawCropCanvas();
+    },
+  
+    initCropCanvas() {
+      const canvas = document.getElementById('avatar-crop-canvas');
+      if (!canvas || !this._cropState) return;
+  
+      const onStart = (clientX, clientY) => {
+        if (!this._cropState) return;
+        this._cropState.isDragging = true;
+        this._cropState.startX = clientX - this._cropState.panX;
+        this._cropState.startY = clientY - this._cropState.panY;
+      };
+  
+      const onMove = (clientX, clientY) => {
+        if (!this._cropState || !this._cropState.isDragging) return;
+        this._cropState.panX = clientX - this._cropState.startX;
+        this._cropState.panY = clientY - this._cropState.startY;
+        this.drawCropCanvas();
+      };
+  
+      const onEnd = () => {
+        if (this._cropState) this._cropState.isDragging = false;
+      };
+  
+      canvas.onmousedown = (e) => onStart(e.clientX, e.clientY);
+      window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+      window.addEventListener('mouseup', onEnd);
+  
+      canvas.ontouchstart = (e) => {
+        if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY);
+      };
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) onMove(e.touches[0].clientX, e.touches[0].clientY);
+      });
+      window.addEventListener('touchend', onEnd);
+  
+      this.drawCropCanvas();
+    },
+  
+    drawCropCanvas() {
+      const canvas = document.getElementById('avatar-crop-canvas');
+      const previewCanvas = document.getElementById('avatar-crop-preview');
+      if (!canvas || !this._cropState || !this._cropState.img) return;
+  
+      const ctx = canvas.getContext('2d');
+      const { img, scale, baseScale, panX, panY } = this._cropState;
+      const cw = canvas.width;
+      const ch = canvas.height;
+  
+      ctx.clearRect(0, 0, cw, ch);
+  
+      // 1. Draw image with scale & pan
+      ctx.save();
+      ctx.translate(cw / 2 + panX, ch / 2 + panY);
+      const effectiveScale = baseScale * scale;
+      ctx.scale(effectiveScale, effectiveScale);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
+  
+      // 2. Draw circular darkening mask outside the circle
+      ctx.save();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+      ctx.beginPath();
+      ctx.rect(0, 0, cw, ch);
+      ctx.arc(cw / 2, ch / 2, 96, 0, Math.PI * 2, true);
+      ctx.fill();
+  
+      // 3. Draw dashed circle boundary guide
+      ctx.beginPath();
+      ctx.arc(cw / 2, ch / 2, 96, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.stroke();
+      ctx.restore();
+  
+      // 4. Update circular preview canvas
+      if (previewCanvas) {
+        const pctx = previewCanvas.getContext('2d');
+        const pw = previewCanvas.width;
+        const ph = previewCanvas.height;
+        pctx.clearRect(0, 0, pw, ph);
+  
+        pctx.save();
+        pctx.beginPath();
+        pctx.arc(pw / 2, ph / 2, pw / 2, 0, Math.PI * 2);
+        pctx.clip();
+  
+        const previewRatio = pw / 192;
+        pctx.translate(pw / 2 + panX * previewRatio, ph / 2 + panY * previewRatio);
+        pctx.scale(effectiveScale * previewRatio, effectiveScale * previewRatio);
+        pctx.drawImage(img, -img.width / 2, -img.height / 2);
+        pctx.restore();
+      }
+    },
+  
+    async applyAndUploadCroppedAvatar() {
+      if (!this._cropState || !this._cropState.img) return;
+  
+      const btn = document.getElementById('save-crop-btn');
+      const origHtml = btn ? btn.innerHTML : 'Save';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Saving...`;
+      }
+  
+      try {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = 400;
+        exportCanvas.height = 400;
+        const ectx = exportCanvas.getContext('2d');
+  
+        const { img, scale, baseScale, panX, panY } = this._cropState;
+        const exportRatio = 400 / 192;
+  
+        ectx.beginPath();
+        ectx.arc(200, 200, 200, 0, Math.PI * 2);
+        ectx.clip();
+  
+        const effectiveScale = baseScale * scale;
+        ectx.translate(200 + panX * exportRatio, 200 + panY * exportRatio);
+        ectx.scale(effectiveScale * exportRatio, effectiveScale * exportRatio);
+        ectx.drawImage(img, -img.width / 2, -img.height / 2);
+  
+        const croppedDataUrl = exportCanvas.toDataURL('image/png');
+  
+        const res = await ApiClient.post('/profile/avatar', { image: croppedDataUrl });
+        if (res && res.user) {
+          AppState.user = res.user;
+        } else if (res && res.url) {
+          AppState.user.avatar_url = res.url;
+        }
+        this.closeCropModal();
+        showToast('Profile picture uploaded and applied successfully!', 'success');
+        this.render();
+      } catch (err) {
+        showToast(err.message || 'Failed to upload profile picture', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
       }
     },
   

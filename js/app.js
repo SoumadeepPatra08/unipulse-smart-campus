@@ -1443,6 +1443,294 @@ export const UniPulse = {
   },
 
   // -----------------------------------------------------------------------
+  // Profile Customization & Avatar Cropper
+  // -----------------------------------------------------------------------
+  async handleUpdateDisplayName(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('profile-name-input');
+    const errEl = document.getElementById('profile-name-error');
+    const btn = document.getElementById('save-name-btn');
+    if (!input) return;
+
+    const newName = input.value.trim();
+    if (errEl) {
+      errEl.innerText = '';
+      errEl.classList.add('hidden');
+    }
+
+    if (!newName || newName.length < 2) {
+      if (errEl) {
+        errEl.innerText = 'Display name must be at least 2 characters long.';
+        errEl.classList.remove('hidden');
+      }
+      return;
+    }
+    if (newName.length > 60) {
+      if (errEl) {
+        errEl.innerText = 'Display name cannot exceed 60 characters.';
+        errEl.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const origText = btn ? btn.innerText : 'Save Name';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+    }
+
+    try {
+      const updated = await ApiClient.put('/profile', { name: newName });
+      AppState.user = updated;
+      showToast(`Display name updated to "${updated.name}"`, 'success');
+      this.render();
+    } catch (err) {
+      showToast(err.message || 'Failed to update display name', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = origText;
+      }
+    }
+  },
+
+  async selectBuiltInAvatar(avatarUrl) {
+    try {
+      const updated = await ApiClient.put('/profile', { avatar_url: avatarUrl });
+      AppState.user = updated;
+      showToast('Profile avatar updated!', 'success');
+      this.render();
+    } catch (err) {
+      showToast(err.message || 'Failed to update avatar', 'error');
+    }
+  },
+
+  async handleRevertAvatar() {
+    const defaultAvatar = '/assets/avatars/avatar-01.svg';
+    try {
+      const updated = await ApiClient.put('/profile', { avatar_url: defaultAvatar });
+      AppState.user = updated;
+      showToast('Reverted to built-in avatar', 'info');
+      this.render();
+    } catch (err) {
+      showToast(err.message || 'Failed to revert avatar', 'error');
+    }
+  },
+
+  handleAvatarFileSelected(e) {
+    const file = e.target && e.target.files && e.target.files[0];
+    if (!file) return;
+
+    e.target.value = '';
+
+    // Validate size: max 5 MB
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      showToast('File size exceeds 5MB limit. Please choose a smaller image.', 'error');
+      return;
+    }
+
+    // Validate type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      showToast('Unsupported file type. Please upload a JPG, PNG, or WebP image.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        this.openCropModal(img);
+      };
+      img.onerror = () => {
+        showToast('Failed to load image file.', 'error');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  openCropModal(img) {
+    const modalRoot = document.getElementById('modal-root');
+    if (!modalRoot) return;
+    modalRoot.innerHTML = renderCropModal();
+
+    this._cropState = {
+      img: img,
+      scale: 1.0,
+      baseScale: 1.0,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      startX: 0,
+      startY: 0
+    };
+
+    const minDim = Math.min(img.width, img.height);
+    this._cropState.baseScale = 256 / minDim;
+
+    this.initCropCanvas();
+  },
+
+  closeCropModal() {
+    const modalRoot = document.getElementById('modal-root');
+    if (modalRoot) modalRoot.innerHTML = '';
+    this._cropState = null;
+  },
+
+  updateCropZoom(val) {
+    if (!this._cropState) return;
+    this._cropState.scale = parseFloat(val);
+    const label = document.getElementById('crop-zoom-label');
+    if (label) label.innerText = `${parseFloat(val).toFixed(2)}x`;
+    this.drawCropCanvas();
+  },
+
+  initCropCanvas() {
+    const canvas = document.getElementById('avatar-crop-canvas');
+    if (!canvas || !this._cropState) return;
+
+    const onStart = (clientX, clientY) => {
+      if (!this._cropState) return;
+      this._cropState.isDragging = true;
+      this._cropState.startX = clientX - this._cropState.panX;
+      this._cropState.startY = clientY - this._cropState.panY;
+    };
+
+    const onMove = (clientX, clientY) => {
+      if (!this._cropState || !this._cropState.isDragging) return;
+      this._cropState.panX = clientX - this._cropState.startX;
+      this._cropState.panY = clientY - this._cropState.startY;
+      this.drawCropCanvas();
+    };
+
+    const onEnd = () => {
+      if (this._cropState) this._cropState.isDragging = false;
+    };
+
+    canvas.onmousedown = (e) => onStart(e.clientX, e.clientY);
+    window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', onEnd);
+
+    canvas.ontouchstart = (e) => {
+      if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) onMove(e.touches[0].clientX, e.touches[0].clientY);
+    });
+    window.addEventListener('touchend', onEnd);
+
+    this.drawCropCanvas();
+  },
+
+  drawCropCanvas() {
+    const canvas = document.getElementById('avatar-crop-canvas');
+    const previewCanvas = document.getElementById('avatar-crop-preview');
+    if (!canvas || !this._cropState || !this._cropState.img) return;
+
+    const ctx = canvas.getContext('2d');
+    const { img, scale, baseScale, panX, panY } = this._cropState;
+    const cw = canvas.width;
+    const ch = canvas.height;
+
+    ctx.clearRect(0, 0, cw, ch);
+
+    // 1. Draw image with scale & pan
+    ctx.save();
+    ctx.translate(cw / 2 + panX, ch / 2 + panY);
+    const effectiveScale = baseScale * scale;
+    ctx.scale(effectiveScale, effectiveScale);
+    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+    ctx.restore();
+
+    // 2. Draw circular darkening mask outside the circle
+    ctx.save();
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+    ctx.beginPath();
+    ctx.rect(0, 0, cw, ch);
+    ctx.arc(cw / 2, ch / 2, 96, 0, Math.PI * 2, true);
+    ctx.fill();
+
+    // 3. Draw dashed circle boundary guide
+    ctx.beginPath();
+    ctx.arc(cw / 2, ch / 2, 96, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. Update circular preview canvas
+    if (previewCanvas) {
+      const pctx = previewCanvas.getContext('2d');
+      const pw = previewCanvas.width;
+      const ph = previewCanvas.height;
+      pctx.clearRect(0, 0, pw, ph);
+
+      pctx.save();
+      pctx.beginPath();
+      pctx.arc(pw / 2, ph / 2, pw / 2, 0, Math.PI * 2);
+      pctx.clip();
+
+      const previewRatio = pw / 192;
+      pctx.translate(pw / 2 + panX * previewRatio, ph / 2 + panY * previewRatio);
+      pctx.scale(effectiveScale * previewRatio, effectiveScale * previewRatio);
+      pctx.drawImage(img, -img.width / 2, -img.height / 2);
+      pctx.restore();
+    }
+  },
+
+  async applyAndUploadCroppedAvatar() {
+    if (!this._cropState || !this._cropState.img) return;
+
+    const btn = document.getElementById('save-crop-btn');
+    const origHtml = btn ? btn.innerHTML : 'Save';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Saving...`;
+    }
+
+    try {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = 400;
+      exportCanvas.height = 400;
+      const ectx = exportCanvas.getContext('2d');
+
+      const { img, scale, baseScale, panX, panY } = this._cropState;
+      const exportRatio = 400 / 192;
+
+      ectx.beginPath();
+      ectx.arc(200, 200, 200, 0, Math.PI * 2);
+      ectx.clip();
+
+      const effectiveScale = baseScale * scale;
+      ectx.translate(200 + panX * exportRatio, 200 + panY * exportRatio);
+      ectx.scale(effectiveScale * exportRatio, effectiveScale * exportRatio);
+      ectx.drawImage(img, -img.width / 2, -img.height / 2);
+
+      const croppedDataUrl = exportCanvas.toDataURL('image/png');
+
+      const res = await ApiClient.post('/profile/avatar', { image: croppedDataUrl });
+      if (res && res.user) {
+        AppState.user = res.user;
+      } else if (res && res.url) {
+        AppState.user.avatar_url = res.url;
+      }
+      this.closeCropModal();
+      showToast('Profile picture uploaded and applied successfully!', 'success');
+      this.render();
+    } catch (err) {
+      showToast(err.message || 'Failed to upload profile picture', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+  },
+
+  // -----------------------------------------------------------------------
   // Render Orchestrator
   // -----------------------------------------------------------------------
   render() {

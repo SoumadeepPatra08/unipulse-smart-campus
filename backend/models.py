@@ -118,3 +118,35 @@ def create_user(
     conn.close()
 
     return get_user_by_id(user_id)
+
+def update_user_profile(user_id: str, name: str | None = None, avatar_url: str | None = None) -> dict | None:
+    """Updates user display name and/or avatar_url in database."""
+    if not user_id:
+        return None
+
+    updates = []
+    params = []
+    if name is not None:
+        clean_name = name.strip()
+        if clean_name:
+            updates.append("name = ?")
+            params.append(clean_name)
+    if avatar_url is not None:
+        clean_avatar = avatar_url.strip()
+        if clean_avatar:
+            updates.append("avatar_url = ?")
+            params.append(clean_avatar)
+
+    if not updates:
+        return get_user_by_id(user_id)
+
+    params.append(user_id)
+    query = f"UPDATE users SET {', '.join(updates)} WHERE id = ?"
+
+    conn = get_db_connection()
+    conn.execute(query, tuple(params))
+    conn.commit()
+    conn.close()
+
+    return get_user_by_id(user_id)
+

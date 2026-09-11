@@ -26,7 +26,7 @@ from backend.auth import (
     hash_password, verify_password, create_jwt, verify_jwt,
     extract_token_from_request, get_authenticated_user
 )
-from backend.models import get_user_by_email, get_user_by_id, create_user
+from backend.models import get_user_by_email, get_user_by_id, create_user, update_user_profile
 
 def get_auth_user(headers):
     return get_authenticated_user(headers)
@@ -849,3 +849,108 @@ def handle_update_interests(body, headers):
     conn.close()
 
     return success_response({"interests": clean_interests})
+
+def handle_update_profile(body, headers):
+    auth_user = get_auth_user(headers)
+    if not auth_user:
+        return error_response("Unauthorized. Please sign in.", 401)
+    user_id = auth_user["sub"]
+
+    name = body.get("name")
+    avatar_url = body.get("avatar_url")
+
+    if name is not None:
+        name = name.strip()
+        if len(name) < 2 or len(name) > 60:
+            return error_response("Display name must be between 2 and 60 characters.", 400)
+
+    if avatar_url is not None:
+        avatar_url = avatar_url.strip()
+        if not avatar_url:
+            return error_response("Avatar URL cannot be empty.", 400)
+        # Check that avatar_url is either a local asset/upload, data URI, or HTTPS URL
+        if not (avatar_url.startswith("/assets/avatars/") or avatar_url.startswith("/uploads/") or avatar_url.startswith("https://") or avatar_url.startswith("data:image/")):
+            return error_response("Invalid avatar URL format.", 400)
+
+    updated = update_user_profile(user_id, name=name, avatar_url=avatar_url)
+    if not updated:
+        return error_response("User not found.", 404)
+    updated.pop("password_hash", None)
+    return success_response(updated)
+
+def handle_upload_avatar(body, headers):
+    auth_user = get_auth_user(headers)
+    if not auth_user:
+        return error_response("Unauthorized. Please sign in.", 401)
+    user_id = auth_user["sub"]
+
+    img_data = body.get("image") or body.get("image_base64") or body.get("image_data")
+    if not img_data or not isinstance(img_data, str):
+        return error_response("No image data provided.", 400)
+
+    # Handle data URI prefix if present
+    mime_type = None
+    encoded_str = img_data
+    if "," in img_data and img_data.startswith("data:"):
+        prefix, encoded_str = img_data.split(",", 1)
+        match = re.search(r"data:image/([a-zA-Z0-9+.-]+);base64", prefix)
+        if match:
+            mime_type = match.group(1).lower()
+            if mime_type not in ("jpeg", "jpg", "png", "webp"):
+                return error_response("Unsupported image format. Allowed formats: JPG, PNG, WebP.", 400)
+        else:
+            return error_response("Unsupported file type. Only JPG, PNG, and WebP are allowed.", 400)
+
+    try:
+        raw_bytes = base64.b64decode(encoded_str)
+    except Exception:
+        return error_response("Invalid base64 image data.", 400)
+
+    # Validate file size: max 5 MB (5 * 1024 * 1024 bytes)
+    MAX_SIZE = 5 * 1024 * 1024
+    if len(raw_bytes) > MAX_SIZE:
+        return error_response("File size exceeds maximum allowed limit of 5 MB.", 400)
+    if len(raw_bytes) < 32:
+        return error_response("Uploaded file is too small or corrupted.", 400)
+
+    # Validate magic bytes strictly
+    ext = None
+    if raw_bytes.startswith(b"\xff\xd8\xff"):
+        ext = ".jpg"
+    elif raw_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+        ext = ".png"
+    elif raw_bytes[:4] == b"RIFF" and len(raw_bytes) >= 12 and raw_bytes[8:12] == b"WEBP":
+        ext = ".webp"
+    else:
+        return error_response("Invalid image file. File content does not match JPG, PNG, or WebP.", 400)
+
+    # Generate unique, collision-proof, path-traversal-safe filename
+    safe_user_id = re.sub(r'[^a-zA-Z0-9_-]', '', user_id)
+    unique_token = uuid.uuid4().hex[:12]
+    filename = f"avatar_{safe_user_id}_{unique_token}{ext}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    # Enforce safe directory containment
+    real_upload_dir = os.path.realpath(UPLOAD_DIR)
+    real_file_path = os.path.realpath(file_path)
+    if not real_file_path.startswith(real_upload_dir):
+        return error_response("Security error: Invalid file destination.", 400)
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(raw_bytes)
+    except Exception as e:
+        return error_response(f"Failed to save image file: {str(e)}", 500)
+
+    avatar_url = f"/uploads/{filename}"
+    updated = update_user_profile(user_id, avatar_url=avatar_url)
+    if not updated:
+        return error_response("Failed to update user profile.", 500)
+    updated.pop("password_hash", None)
+
+    return success_response({
+        "url": avatar_url,
+        "avatar_url": avatar_url,
+        "user": updated
+    })
+

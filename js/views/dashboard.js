@@ -7,11 +7,17 @@ export function renderDashboard() {
     <div class="space-y-6 animate-fadeIn pb-12">
       <!-- Top Welcome Greeting -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Welcome back, <span class="text-indigo-600">${AppState.user.name.split(' ')[0]}</span> 👋
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Here is what is happening across your campus right now.</p>
+        <div class="flex items-center gap-3.5">
+          <div class="cursor-pointer" onclick="UniPulse.navigateTo('profile')" title="View profile settings">
+            <img src="${AppState.user?.avatar_url || '/assets/avatars/avatar-01.svg'}" alt="User Avatar"
+                 class="w-12 h-12 rounded-2xl object-cover border border-slate-200 ring-2 ring-indigo-100 hover:ring-indigo-300 transition-all shadow-sm">
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Welcome back, <span class="text-indigo-600">${AppState.user?.name ? AppState.user.name.split(' ')[0] : 'Student'}</span> 👋
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Here is what is happening across your campus right now.</p>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="UniPulse.openReportModal('lost')"

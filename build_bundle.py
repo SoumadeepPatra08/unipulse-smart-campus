@@ -18,6 +18,7 @@ def build_bundle():
         "js/components/modals.js",
         "js/components/sidebar.js",
         "js/components/header.js",
+        "js/components/avatarPicker.js",
         "js/views/login.js",
         "js/views/dashboard.js",
         "js/views/assistant.js",

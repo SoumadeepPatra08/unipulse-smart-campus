@@ -28,6 +28,7 @@ from backend.routes import (
     handle_reserve_study_space, handle_get_item_matches, handle_claim_match,
     handle_assistant_message, handle_admin_kpis, handle_admin_audit_queue,
     handle_admin_verify, handle_get_events, handle_rsvp_event, handle_create_item,
+    handle_update_profile, handle_upload_avatar,
     create_jwt, verify_jwt
 )
 import seed
@@ -241,9 +242,76 @@ def run_all_tests():
     print(f"  -> Active lost reports: {fresh_kpis['active_lost_reports']}")
     print("  -> PASSED: Dynamic KPIs aggregated correctly from persisted SQLite records.")
 
+    # 12. Profile Customization: Display Name, Built-in Avatars & Image Upload Security
+    print("\n[12/12] Testing Profile Customization, Avatars & Image Upload Security...")
+    import base64
+
+    # 12a. Update display name & built-in avatar
+    update_prof = handle_update_profile({
+        "name": "Alex R. Rivera",
+        "avatar_url": "/assets/avatars/avatar-07.svg"
+    }, auth_headers)
+    assert update_prof["error"] is None, f"Profile update failed: {update_prof['error']}"
+    assert update_prof["data"]["name"] == "Alex R. Rivera"
+    assert update_prof["data"]["avatar_url"] == "/assets/avatars/avatar-07.svg"
+
+    # Verify persistence via get_me
+    refreshed_user = handle_get_me(auth_headers)["data"]
+    assert refreshed_user["name"] == "Alex R. Rivera"
+    assert refreshed_user["avatar_url"] == "/assets/avatars/avatar-07.svg"
+    print("  -> PASSED: Display name and built-in avatar updated and verified via get_me.")
+
+    # 12b. Validation: Reject invalid/empty display name
+    bad_name_res = handle_update_profile({"name": "A"}, auth_headers)
+    assert bad_name_res["error"] is not None and bad_name_res["error"]["code"] == 400
+    print("  -> PASSED: Name shorter than 2 chars rejected with 400.")
+
+    # 12c. Validation: Unauthenticated profile update rejected
+    unauth_prof = handle_update_profile({"name": "Hacker Name"}, {})
+    assert unauth_prof["error"] is not None and unauth_prof["error"]["code"] == 401
+    print("  -> PASSED: Unauthenticated profile update rejected with 401.")
+
+    # 12d. Upload valid custom avatar (PNG magic bytes)
+    valid_png_b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    upload_res = handle_upload_avatar({"image_data": valid_png_b64}, auth_headers)
+    assert upload_res["error"] is None, f"Avatar upload failed: {upload_res['error']}"
+    new_avatar_url = upload_res["data"]["avatar_url"]
+    assert new_avatar_url.startswith("/uploads/avatar_user-alex_")
+    assert new_avatar_url.endswith(".png")
+
+    # Verify file physically exists on disk in uploads/
+    saved_file_rel = new_avatar_url.lstrip("/")
+    saved_file_abs = os.path.join(BASE_DIR, saved_file_rel)
+    assert os.path.exists(saved_file_abs), f"File {saved_file_abs} does not exist on disk"
+    with open(saved_file_abs, "rb") as f:
+        file_bytes = f.read()
+    assert file_bytes.startswith(b"\x89PNG\r\n\x1a\n"), "File header does not match PNG magic bytes"
+    print("  -> PASSED: Valid PNG custom avatar uploaded, saved to uploads/, and verified on disk.")
+
+    # 12e. Validation: Reject spoofed / invalid magic bytes file
+    fake_png_b64 = "data:image/png;base64," + base64.b64encode(b"THIS IS A CORRUPTED TEXT STRING DISGUISED AS AN IMAGE OVER 32 BYTES").decode("utf-8")
+    fake_res = handle_upload_avatar({"image_data": fake_png_b64}, auth_headers)
+    assert fake_res["error"] is not None and fake_res["error"]["code"] == 400
+    assert "Invalid image" in fake_res["error"]["message"]
+    print("  -> PASSED: Spoofed/non-image file rejected with 400.")
+
+    # 12f. Validation: Reject oversized upload (> 5 MB)
+    oversized_raw = b"\x89PNG\r\n\x1a\n" + (b"\x00" * (5 * 1024 * 1024 + 64))
+    oversized_b64 = "data:image/png;base64," + base64.b64encode(oversized_raw).decode("utf-8")
+    oversized_res = handle_upload_avatar({"image_data": oversized_b64}, auth_headers)
+    assert oversized_res["error"] is not None and oversized_res["error"]["code"] == 400
+    assert "exceeds maximum allowed" in oversized_res["error"]["message"]
+    print("  -> PASSED: Oversized upload (> 5MB) rejected with 400.")
+
+    # 12g. Validation: Reject unauthenticated upload
+    unauth_upload = handle_upload_avatar({"image_data": valid_png_b64}, {})
+    assert unauth_upload["error"] is not None and unauth_upload["error"]["code"] == 401
+    print("  -> PASSED: Unauthenticated avatar upload rejected with 401.")
+
     print("\n====================================================")
-    print(" All 11/11 UniPulse Backend Tests Passed Successfully! ")
+    print(" All 12/12 UniPulse Backend Tests Passed Successfully! ")
     print("====================================================")
 
 if __name__ == "__main__":
     run_all_tests()
+
